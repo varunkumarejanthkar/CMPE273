@@ -30,7 +30,7 @@ class Home extends Component {
         //if not logged in go to login page
         let redirectVar = null;
         if(!cookie.load('cookie')){
-            redirectVar = <Redirect to= "/login"/>
+            redirectVar = <Redirect to= "/landing"/>
         }
         return(
             <div>

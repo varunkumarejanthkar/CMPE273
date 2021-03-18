@@ -111,7 +111,7 @@ class AccountClass extends Component {
     console.log("Outside if block cookie.load cookie");
     if (!cookie.load("cookie")) {
       console.log("Inside if block cookie.load cookie");
-      redirectVar = <Redirect to="/login" />;
+      redirectVar = <Redirect to="/landing" />;
     }
     const inputTextStyles = {
       width: "210px",
