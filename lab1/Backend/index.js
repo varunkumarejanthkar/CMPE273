@@ -5,6 +5,8 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
 var cors = require('cors');
+var service = require('./Services/Service');
+var userModel = require('./Model/UserModel');
 const {check,validationResult} = require("express-validator");
 app.set('view engine', 'ejs');
 
@@ -56,56 +58,131 @@ app.post('/login',function(req,res){
     // });
     // var username = req.body.username;
     // var password = req.body.password;
-    console.log("Inside Login Post Request");
+    //console.log("Inside Login Post Request");
     //console.log("Req Body : ", username + "password : ",password);
-    console.log("Req Body : ",req.body);
-    Users.filter(function(user){
-        // if(true){
-            res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-            req.session.user = user;
-            res.writeHead(200,{
-                'Content-Type' : 'text/plain'
-            })
-            res.end("Successful Login");
-        // }
-        // else
-        // {
-            // return res.status(400).send({
-                // message: 'Login Error'
-             // }); 
-        // }
-    })    
-});
-
-
-app.post('/Signup',function(req,res){
+    //console.log("Req Body : ",req.body);
+    // Users.filter(function(user){
+    //     // if(true){
+    //         res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+    //         req.session.user = user;
+    //         res.writeHead(200,{
+    //             'Content-Type' : 'text/plain'
+    //         })
+    //         res.end("Successful Login");
+    //     // }
+    //     // else
+    //     // {
+    //         // return res.status(400).send({
+    //             // message: 'Login Error'
+    //          // }); 
+    //     // }
+    // })     
     
-    // Object.keys(req.body).forEach(function(key){
-    //     req.body = JSON.parse(key);
-    // });
-    // var username = req.body.username;
-    // var password = req.body.password;
-    console.log("Inside Login Post Request");
+    var password = req.body.password;
+    var email = req.body.mail;
+    //console.log("Inside Signup Post Request : " + username);
     //console.log("Req Body : ", username + "password : ",password);
-    console.log("Req Body : ",req.body);
-    Users.filter(function(user){
-        // if(true){
-            res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-            req.session.user = user;
-            res.writeHead(200,{
-                'Content-Type' : 'text/plain'
-            })
-            res.end("Successful Login");
-        // }
-        // else
-        // {
-            // return res.status(400).send({
-                // message: 'Login Error'
-             // }); 
-        // }
-    })    
+    var model = new userModel.UserModel(null, password, email);
+    //var returnValue = service.signupService(modal);
+    //console.log("Inside Signup : " + returnValue);
+    service.loginService(model)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+        //req.session.user = user;
+        console.log("Inside app post login : " + results);
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        res.end(JSON.stringify(results[0]));
+    })
+    .catch(function(err){
+        console.log("Inside app post login - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });
 });
 
+
+app.post('/Signup',function(req,res){    
+    var username = req.body.username;
+    var password = req.body.password;
+    var email = req.body.emailAddress;
+    console.log("Inside Signup Post Request : " + username);
+    //console.log("Req Body : ", username + "password : ",password);
+    var modal = new userModel.UserModel(username, password, email);
+    //var returnValue = service.signupService(modal);
+    //console.log("Inside Signup : " + returnValue);
+    service.signupService(modal)
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+        //req.session.user = user;
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        res.end(JSON.stringify(results[0]));
+    })
+    .catch(function(err){
+        console.log("Promise rejection error: "+err);
+        return res.status(500).send({
+            message: 'Signup Error'
+         });
+    })
+    // if(returnValue)
+    // {
+    //     res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+    //         req.session.user = user;
+    //         res.writeHead(200,{
+    //             'Content-Type' : 'text/plain'
+    //         })
+    //         res.end("Successful Login");
+    // }
+    // else{
+    //     return res.status(500).send({
+    //          message: 'Signup Error'
+    //       });
+    // }
+    // Users.filter(function(user){
+    //      if(true){
+    //         res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+    //         req.session.user = user;
+    //         res.writeHead(200,{
+    //             'Content-Type' : 'text/plain'
+    //         })
+    //         res.end("Successful Login");
+    //     // }
+    //     // else
+    //     // {
+    //         // return res.status(400).send({
+    //             // message: 'Login Error'
+    //          // }); 
+    //     // }
+    // })    
+});
+
+app.post('/account',function(req,res){    
+    var password = req.body.Password;
+    var mail = req.body.Mail;    
+    var model = new userModel.UserModel(req.body.UserName, password, mail, req.body.UserId, req.body.Phone_Number, "", req.body.DefaultCurrency, req.body.Language);
+    //var returnValue = service.signupService(modal);
+    //console.log("Inside Signup : " + returnValue);
+    service.updateUserDetails(model)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+        //req.session.user = user;
+        console.log("Inside app post login : " + results);
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        res.end();
+    })
+    .catch(function(err){
+        console.log("Inside app post account - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });
+});
 //Route to get All Books when user visits the Home Page
 app.get('/Signup', function(req,res){
     console.log("Inside app.get Signup");    
@@ -116,6 +193,14 @@ app.get('/Signup', function(req,res){
     res.end(JSON.stringify(books));    
 })
 
+app.get('/account', function(req,res){
+    console.log("Inside app.get account");    
+    res.writeHead(200,{
+        'Content-Type' : 'application/json'
+    });
+    console.log("Books : ",JSON.stringify(books));
+    res.end(JSON.stringify(books));    
+})
 
 //Route to get All Books when user visits the Home Page
 app.get('/home', function(req,res){

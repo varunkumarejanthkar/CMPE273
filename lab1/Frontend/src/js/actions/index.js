@@ -1,6 +1,6 @@
 import { USER_LOGIN, USER_LOGOUT} from "../constants/action-types";
 export function loginAction(payload) {
-  console.log("dispatching the login action : " + payload.username + " : " + payload.password);
+  console.log("dispatching the login action : " + payload.UserName + " : " + payload.Password);
   return { type: USER_LOGIN, payload };
 }
 

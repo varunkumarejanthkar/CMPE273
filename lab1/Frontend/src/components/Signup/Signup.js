@@ -50,10 +50,22 @@ class Signup extends Component{
             password : e.target.value
         })
     }
+
+    validateEmail(email) {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    validateInputData = (data) => {        
+        if(data.emailAddress.trim() == "" || data.username.trim() == "" || data.password.trim() == "")
+            return false;
+
+        return true;
+    }
+
     //submit Login handler to send a request to the node backend
     submitSignup = async (e) => {
-        //var headers = new Headers();
-        //prevent page from refresh
+        
         e.preventDefault();
         const data = {
             emailAddress : this.state.emailAddress,
@@ -61,6 +73,18 @@ class Signup extends Component{
             password : this.state.password
         }
 
+        if(!this.validateInputData(data))
+        {
+            alert("Please enter valid input");
+            return;
+        }
+        else if(!this.validateEmail(data.emailAddress))
+        {
+            alert("Please enter valid email format");
+            return;
+        }
+
+        console.log(data.username);
         await this.props.loginAction(data);
         //set the with credentials to true
         axios.defaults.withCredentials = true;
@@ -84,8 +108,9 @@ class Signup extends Component{
                 // document.getElementById("divError").style.marginLeft = "-53%";
                 // document.getElementById("divError").style.marginBottom = "5px";
                 // document.getElementById("divError").innerHTML = "Invalid credentials"; 
-                console.log("Error");  
-                this.props.history.push("/home");  
+                console.log("Error : " + error.status);  
+                alert(error.status);
+                //this.props.history.push("/home");  
             });
     }
 

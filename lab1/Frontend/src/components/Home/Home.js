@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
 import '../../App.css';
 import axios from 'axios';
-//import cookie from 'react-cookies';
-//import {Redirect} from 'react-router';
+import cookie from 'react-cookies';
+import {Redirect} from 'react-router';
 
 class Home extends Component {
     constructor(){
-        console.log("Inside Component Constructor")
+        console.log("Inside Home constructor");
         super();
         this.state = {  
             books : []
@@ -14,9 +14,11 @@ class Home extends Component {
     }  
     //get the books data from backend  
     componentDidMount(){
+        console.log("Inside Home componentDidMount");
         axios.get('http://localhost:3001/home')
                 .then((response) => {
                 //update the state with the response data
+                console.log("Inside Home axios.get");
                 this.setState({
                     books : this.state.books.concat(response.data) 
                 });
@@ -24,26 +26,17 @@ class Home extends Component {
     }
 
     render(){
-        //iterate over books to create a table row
-        // let details = this.state.books.map(book => {
-        //     return(
-        //         <tr>
-        //             <td>{book.BookID}</td>
-        //             <td>{book.Title}</td>
-        //             <td>{book.Author}</td>
-        //         </tr>
-        //     )
-        // })
+        //iterate over books to create a table row        
         //if not logged in go to login page
         let redirectVar = null;
-        // if(!cookie.load('cookie')){
-        //     redirectVar = <Redirect to= "/login"/>
-        // }
+        if(!cookie.load('cookie')){
+            redirectVar = <Redirect to= "/login"/>
+        }
         return(
             <div>
-                {/* {redirectVar} */}
+                {redirectVar}
                 <div class="container">
-                    <h1>Welcome To Splitwise!</h1>
+                    
                 </div> 
             </div> 
         )
