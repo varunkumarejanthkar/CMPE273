@@ -107,9 +107,16 @@ class RecentActivity extends Component {
     currentUserDetails.reverse();
     console.log(currentUserDetails);    
     var html = "<div style = 'margin-left:4px;'>";
-
+    const arr = [];
     for(const obj of currentUserDetails)
     {       
+      if(arr.includes(obj.ExpenseDescription))
+      {
+        continue;
+      }
+      else{
+        arr.push(obj.ExpenseDescription);
+      }
        console.log(obj.CreatedTime); 
        var date = obj.CreatedTime.split("-");
        const month = this.state.months[date[1] - 1];
