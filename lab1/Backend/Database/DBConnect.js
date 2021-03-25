@@ -33,12 +33,12 @@ const saveSignUpDetails = function (userModel) {
       function (err, result, fields) {
         if (err) {
           con.end();
-          console.log(err);
-          reject(new Error("Not Unique Email"));
+          console.log();
+          reject(new Error("Not Unique mail : " + err));
         }
         if (result) {
           //console.log(result);
-          con.end();
+          con.end();       
           resolve();
         }
       }

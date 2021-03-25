@@ -98,7 +98,7 @@ app.post('/Signup',function(req,res){
         res.writeHead(200,{
             'Content-Type' : 'text/plain'
         })
-        res.end();
+        res.end(JSON.stringify(results[0]));
     })
     .catch(function(err){
         console.log("Promise rejection error: "+err);

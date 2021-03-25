@@ -26,7 +26,19 @@ const decrypt = (encryptedCode) => {
 
 const signupService = (userModel) => {
   userModel.password = encrypt(userModel.password);
-  return dbConnect.saveSignUpDetails(userModel);
+  dbConnect.saveSignUpDetails(userModel)
+  .then(function(){
+    dbConnect.GetUserDetails(userModel)
+    .then(function(results){
+      resolve(results[0]);
+    })
+    .catch(function(err) {
+      reject("Not Unique mail : " + err);
+    })
+  })
+  .catch(function(err){
+    reject("Not Unique mail : " + err);
+  })
 };
 
 const loginService = (userModel) => {

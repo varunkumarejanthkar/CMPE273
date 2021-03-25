@@ -92,11 +92,16 @@ class Signup extends Component{
         //make a post request with the user data
         axios.post(url + '/Signup',data)
             .then(response => {
-                console.log("Status Code : ",response.status);
+                console.log("Inside axios signup : ",response.status);
                 if(response.status === 200){
                     this.setState({
                         authFlag : true
                     })
+
+                    console.log("Inside axios signup : ",response.status);
+                    console.log(response.data);
+                    sessionStorage.setItem("user", JSON.stringify(response.data[0]));
+                    this.props.history.push("/home");                    
                 }else{
                     this.setState({
                         authFlag : false

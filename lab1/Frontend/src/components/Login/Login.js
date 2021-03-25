@@ -61,7 +61,7 @@ class LoginClass extends Component {
        
     console.log("submitLogin : " + data.mail + "Password : " + data.password);
     axios.defaults.withCredentials = true;
-    axios
+    await axios
       .post(url + "/login", data)
       .then((response) => {
         console.log("Status Code : ", response.status);
@@ -73,6 +73,7 @@ class LoginClass extends Component {
         sessionStorage.setItem("user", JSON.stringify(response.data));  
         this.props.loginAction(response.data);        
         console.log(response.data);
+        this.props.history.push("/home");
         //console.log("Data from login app.post : " + response.data[0].UserName);
         } else {
           this.setState({
