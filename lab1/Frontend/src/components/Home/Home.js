@@ -317,7 +317,7 @@ class Home extends Component {
                                 </div>
                                 <div id = "divYouOwe" style = {{float: "left", marginLeft: "-28%", marginTop: "8%", width: "55%"}}>
                                 </div>                                
-                                <div id = "divOweYou" style = {{float: "left", marginTop: "3.5%"}}>
+                                <div id = "divOweYou" style = {{float: "left", marginTop: "3.5%", marginLeft: "6%"}}>
 
                                 </div>
                             </div>

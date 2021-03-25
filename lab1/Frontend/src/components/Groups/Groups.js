@@ -208,7 +208,7 @@ renderGroupExpensesOnclick = (e) =>
 
   createMarkup() { 
     console.log("from createMarkup");
-    var text = "<ul>";
+    var text = "<ul style = 'margin-left:-16%'>";
 
     for(const group of this.state.allGroupDetails)
     {
@@ -242,6 +242,7 @@ renderGroupExpensesOnclick = (e) =>
         GroupID : this.state.activeGroupId,
         UserName: this.state.user.UserName
     };
+    alert(expense);
     axios.defaults.withCredentials = true;
     axios
       .post(url + "/saveExpense", data)
@@ -301,13 +302,30 @@ renderGroupExpensesOnclick = (e) =>
     console.log(currentActiveGroupDetails);    
     var html = "<div>";
     currentActiveGroupDetails.reverse();
-    
+    const cur = [], uniqueExpenseDescription = [], originalExpense = [];
+    var exp = [];
     for(const obj of currentActiveGroupDetails)
+    {
+      if(cur[obj.ExpenseDescription] != null && obj.ExpenseDescription !== undefined)
+      {
+        cur[obj.ExpenseDescription].Expense += obj.Expense;  
+        exp[obj.ExpenseDescription] = obj.Expense;              
+      }
+      else
+      {
+        originalExpense[obj.ExpenseDescription] = obj.Expense;
+        cur[obj.ExpenseDescription] = obj;
+        uniqueExpenseDescription.push(obj.ExpenseDescription);
+      }
+    }
+    for(const uep of uniqueExpenseDescription)
     {       
+       const obj = cur[uep];
        var date = obj.CreatedTime.split("-");
        const month = this.state.months[date[1] - 1];
        const year = date[0];       
-       const expense = obj.Expense * this.state.activeGroupSize;
+       //const expense = obj.Expense * this.state.activeGroupSize;
+       const expense = obj.Expense + exp[uep];
        var UserName = this.getUserName(obj.UserId);
       // alert("UserName : " + UserName + " : " +  this.state.activeGroup);
 
@@ -325,6 +343,11 @@ renderGroupExpensesOnclick = (e) =>
        html += "</div><div><label class = 'lblMonth' style='margin-left: 110px;'>" + User + "</label>";
        html += "<label class = 'lblExpense'>" + expense + "</label></div>";
        html += "<br/><br/>";
+    }
+
+    for(const obj of currentActiveGroupDetails)
+    {
+      obj.Expense = originalExpense[obj.ExpenseDescription];
     }
 
     html += "</div>";

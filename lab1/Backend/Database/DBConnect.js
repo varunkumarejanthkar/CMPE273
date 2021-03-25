@@ -148,8 +148,8 @@ const createGroup = (userId, groupName, userIdArray, emailArray) => {
   const con = createConnection();
   return new Promise(function (resolve, reject) {
     con.query(
-      "Insert into `dbo.splitwise`.GroupsTable(GroupName, GroupType, CreatedDate) values(?,'Other', ?)",
-      [groupName, require("moment")().format("YYYY-MM-DD HH:mm:ss")],
+      "Insert into `dbo.splitwise`.GroupsTable(GroupName, GroupType, CreatedDate, Groupsize) values(?,'Other', ?, ?)",
+      [groupName, require("moment")().format("YYYY-MM-DD HH:mm:ss"), userIdArray.length],
       function (err, result, fields) {
         if (err) {
           con.end();
@@ -377,6 +377,7 @@ const saveExpense = (expense, groupName, expenseDescription, userName, groupId, 
         userIdArrayString = userIdArray.join();
         const len = results.length;
         expense = expense / (len + 1) ;
+        console.log("Expense  : " + expense);
 
         getUserGroupId(userName, groupId)
         .then(function(r) {
