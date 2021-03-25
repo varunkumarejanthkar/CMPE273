@@ -5,7 +5,10 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bootstrap": "^4.3.1",
+    "form-data": "^4.0.0",
+    "moment": "^2.29.1",
     "react": "^16.9.0",
+    "react-autocomplete": "^1.8.1",
     "react-bootstrap": "^1.0.0-beta.12",
     "react-cookies": "^0.1.1",
     "react-dom": "^16.9.0",
@@ -13,6 +16,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.1.1",
+    "reactjs-popup": "^2.0.4",
     "redux": "^4.0.4",
     "uuid": "^3.3.3"
   },

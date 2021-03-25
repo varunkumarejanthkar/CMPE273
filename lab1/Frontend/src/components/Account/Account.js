@@ -7,6 +7,8 @@ import { Redirect } from "react-router";
 import store from "../../js/store/index";
 import { connect } from "react-redux";
 import { loginAction } from "../../js/actions/index";
+import FormData from 'form-data'
+import {url} from "../Constants";
 
 class AccountClass extends Component {
   constructor() {
@@ -26,9 +28,9 @@ class AccountClass extends Component {
 
   validateInputData = (data) => {
     if (
-      data.Mail.trim() == "" ||
-      data.UserName.trim() == "" ||
-      data.Password.trim() == ""
+      data.Mail.trim() === "" ||
+      data.UserName.trim() === "" ||
+      data.Password.trim() === ""
     )
       return false;
 
@@ -58,7 +60,7 @@ class AccountClass extends Component {
 
     axios.defaults.withCredentials = true;
     axios
-      .post("http://localhost:3001/account", data)
+      .post(url + "/account", data)
       .then((response) => {
         console.log("Status Code : ", response.status);
         if (response.status === 200) {
@@ -67,7 +69,9 @@ class AccountClass extends Component {
           });
 
           sessionStorage.setItem("user", JSON.stringify(data));
+          this.uploadFile();
           alert("User data saved successfully");
+
           //this.props.loginAction(response.data);
 
           //console.log("Data from login app.post : " + response.data.UserName);
@@ -88,21 +92,46 @@ class AccountClass extends Component {
       });
   };
 
+  uploadFile = () =>
+  {
+    let files = document.getElementById("myImage").files;
+    if (FileReader && files && files.length) {
+      var fr = new FileReader();
+      fr.onload = function () {        
+        console.log(document.getElementsByClassName("picture-frame"));
+        document.getElementsByClassName("picture-frame")[0].src = fr.result;
+      }
+      fr.readAsDataURL(files[0]);
+    }
+    //document.getElementsByClassName("picture-frame").src = photo;
+    let formData = new FormData();     
+    formData.append("file_uplaoded", files[0]);
+    formData.append("UserId", this.state.user.UserId)
+    fetch(url + '/saveFile', {method: "POST", body: formData});
+  }
+
   //get the books data from backend
-  componentWillMount() {
+  componentWillMount() {    
     console.log("Inside Account componentDidMount : ");
     console.log(store.getState());
     console.log(sessionStorage.getItem("user"));
-    this.state.user = JSON.parse(sessionStorage.getItem("user"));
+    //this.state.user = JSON.parse(sessionStorage.getItem("user"));
+    this.setState({
+      user: JSON.parse(sessionStorage.getItem("user"))
+    });
+    //this.state.setState('user', JSON.parse(sessionStorage.getItem("user")));
     //this.state.user.UserName = "varun";
     //console.log(store.getState().user.UserName + " : " + this.state.user.UserName);
-    // axios.get("http://localhost:3001/account").then((response) => {
+    // axios.get(url + "account").then((response) => {
     //   //update the state with the response data
     //   console.log("Inside account axios.get");
     //   this.setState({
     //     books: this.state.books.concat(response.data),
     //   });
     // });
+  }
+  componentDidMount(){
+    console.log(document.getElementsByClassName("picture-frame"));
   }
 
   render() {
@@ -123,7 +152,7 @@ class AccountClass extends Component {
       <div>
         {redirectVar}
         {console.log("inside return")}
-        <div id="container" style={{ marginLeft: "13%" }}>
+        <div id="container" style={{ marginLeft: "25%" }}>
           <div style={{ width: "800px" }}>
             <div
               class="span3 columns"
@@ -131,9 +160,12 @@ class AccountClass extends Component {
             >
               <label style={{ fontSize: "215%" }}>Your account</label>
               <img
+                style = {{height: "214px", width: "85%"}}
                 class="picture-frame"
+                alt = ""
                 src="https://s3.amazonaws.com/splitwise/uploads/user/default_avatars/avatar-orange44-200px.png"
               ></img>
+              <input style = {{marginTop: "6px"}} type="file" id="myImage" name="filename"></input>
             </div>
             <div style={{ width: "143px", float: "left", marginTop: "7%" }}>
               <label style={{ fontWeight: "100" }}>Your Name</label>
@@ -202,7 +234,7 @@ class AccountClass extends Component {
               <br />
             </div>
           </div>
-          <div style={{ clear: "both", marginLeft: "68%" }}>
+          <div style={{ float: "left", marginLeft: "54%", marginTop: "28px" }}>
             <button
               onClick={this.saveUserDetails}
               class="btn btn-primary"

@@ -5,6 +5,7 @@ import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
 import { connect } from "react-redux";
 import {loginAction} from '../../js/actions/index'
+import {url} from "../Constants"
 
 //Define a Signup Component
 class Signup extends Component{
@@ -57,7 +58,7 @@ class Signup extends Component{
     }
 
     validateInputData = (data) => {        
-        if(data.emailAddress.trim() == "" || data.username.trim() == "" || data.password.trim() == "")
+        if(data.emailAddress.trim() === "" || data.username.trim() === "" || data.password.trim() === "")
             return false;
 
         return true;
@@ -89,7 +90,7 @@ class Signup extends Component{
         //set the with credentials to true
         axios.defaults.withCredentials = true;
         //make a post request with the user data
-        axios.post('http://localhost:3001/Signup',data)
+        axios.post(url + '/Signup',data)
             .then(response => {
                 console.log("Status Code : ",response.status);
                 if(response.status === 200){
@@ -100,26 +101,22 @@ class Signup extends Component{
                     this.setState({
                         authFlag : false
                     })
+                    alert("Something went wrong");
                 }
             })
-            .catch(error => {
-                // document.getElementById("divError").style.fontSize = "103%";
-                // document.getElementById("divError").style.marginTop = "-13%";
-                // document.getElementById("divError").style.marginLeft = "-53%";
-                // document.getElementById("divError").style.marginBottom = "5px";
-                // document.getElementById("divError").innerHTML = "Invalid credentials"; 
+            .catch(error => {                
                 console.log("Error : " + error.status);  
-                alert(error.status);
+                alert("Something went wrong");
                 //this.props.history.push("/home");  
             });
     }
 
     render(){        
         let redirectVar = null;
-        if(cookie.load('cookie')){
-            console.log("Inside If cookie block in login");            
-            redirectVar = <Redirect to= "/home"/>
-        }
+        // if(cookie.load('cookie')){
+        //     console.log("Inside If cookie block in login");            
+        //     redirectVar = <Redirect to= "/home"/>
+        // }
 
         console.log("Outside If cookie block in login");            
         return(

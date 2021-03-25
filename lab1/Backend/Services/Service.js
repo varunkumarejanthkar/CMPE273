@@ -2,6 +2,7 @@
 var UserModel = require("../Model/UserModel");
 var dbConnect = require("../Database/DBConnect");
 var crypto = require("crypto");
+const { resolve } = require("path");
 
 const encrypt = (password) => {
   const algorithm = "aes256"; // or any other algorithm supported by OpenSSL
@@ -61,8 +62,86 @@ const updateUserDetails = (userModel) => {
     return dbConnect.saveUserDetails(userModel);
 }
 
+const createGroup = (userId, groupName, userNameArray, emailArray, userIdArray) => {
+    //return dbConnect.createGroup(userId, groupName, userIdArray, emailArray);
+   // return new Promise(function (resolve, reject) {
+      dbConnect.createGroup(userId, groupName, userNameArray, emailArray)
+        .then(function (results) {    
+          dbConnect.getGroupDetails(groupName)
+          .then(function(result){
+            const groupId = result;
+            dbConnect.InsertUserGroupRelationships(userId, groupName, userNameArray, emailArray, userIdArray, groupId)
+            .then(function(result){
+              resolve("Success");
+            }) 
+            .catch(function(err){
+              console.log("Promise rejection error: " + err);
+              reject();
+            }) 
+            //resolve();          
+          })     
+          .catch(function(err){
+            console.log("Promise rejection error: " + err);
+            reject();
+          })          
+        })
+        .catch(function (err) {
+          console.log("Promise rejection error: " + err);
+          reject();
+        });          
+}
+
+const getAllUserDetails = () => {
+  return dbConnect.getAllUserDetails();
+}
+
+const IsGroupCreated = (groupName) => {
+  return dbConnect.IsGroupCreated(groupName);  
+}
+
+const getAllGroupDetails = (userId) => {
+  return dbConnect.getAllGroupDetails(userId);  
+}
+
+const getAllExpensesDetails = (userId) => { 
+  return dbConnect.getAllExpensesDetails(userId);
+}
+
+const saveExpense = (expense, groupName, expenseDescription, userName, groupId, userId) => {
+  return dbConnect.saveExpense(expense, groupName, expenseDescription, userName, groupId, userId);
+}
+
+const GetGroupInvitationDetails = (userId) => {
+  return dbConnect.GetGroupInvitationDetails(userId);
+}
+
+const saveInvitation = (userId, groupId) => {
+  return dbConnect.saveInvitation(userId, groupId);
+}
+
+const leaveGroup = (userId, groupId) => {
+  return dbConnect.leaveGroup(userId, groupId);
+}
+
+const settleUpExpenses = (userId, userName2, userId2) => {
+  return dbConnect.settleUpExpenses(userId, userName2, userId2);
+}
+
+const saveFile = (fileBytes, userId) => {
+  return dbConnect.saveFile(fileBytes, userId);
+}
 
 exports.signupService = signupService;
 exports.loginService = loginService;
 exports.updateUserDetails = updateUserDetails;
-
+exports.createGroup = createGroup;
+exports.getAllUserDetails = getAllUserDetails;
+exports.IsGroupCreated = IsGroupCreated;
+exports.getAllGroupDetails = getAllGroupDetails;
+exports.getAllExpensesDetails = getAllExpensesDetails;
+exports.saveExpense = saveExpense;
+exports.GetGroupInvitationDetails = GetGroupInvitationDetails;
+exports.saveInvitation = saveInvitation;
+exports.leaveGroup = leaveGroup;
+exports.settleUpExpenses = settleUpExpenses;
+exports.saveFile = saveFile;

@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import axios from 'axios';
 import { Redirect } from 'react-router';
 import cookie from 'react-cookies';
+import {url} from "../Constants"
 
 class Create extends Component{
     constructor(props){        
@@ -81,7 +82,7 @@ class Create extends Component{
         }
        
         axios.defaults.withCredentials = true;       
-        axios.post('http://localhost:3001/create',data)
+        axios.post(url + '/create',data)
             .then(response => {
                 console.log("Status Code : ",response.status);
                 if(response.status === 200){

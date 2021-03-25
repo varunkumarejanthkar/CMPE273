@@ -5,6 +5,7 @@ import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { connect } from "react-redux";
 import { loginAction } from "../../js/actions/index";
+import {url} from "../Constants";
 
 class LoginClass extends Component {
   constructor(props) {
@@ -57,12 +58,11 @@ class LoginClass extends Component {
       alert("Please enter valid email address and password");
       return;
     }
-    
-    var x;
+       
     console.log("submitLogin : " + data.mail + "Password : " + data.password);
     axios.defaults.withCredentials = true;
     axios
-      .post("http://localhost:3001/login", data)
+      .post(url + "/login", data)
       .then((response) => {
         console.log("Status Code : ", response.status);
         if (response.status === 200) {
@@ -70,15 +70,16 @@ class LoginClass extends Component {
             authFlag: true,
           });
         
-        sessionStorage.setItem('user', JSON.stringify(response.data));  
-        this.props.loginAction(response.data);
-       
-          //console.log("Data from login app.post : " + response.data.UserName);
+        sessionStorage.setItem("user", JSON.stringify(response.data));  
+        this.props.loginAction(response.data);        
+        console.log(response.data);
+        //console.log("Data from login app.post : " + response.data[0].UserName);
         } else {
           this.setState({
             authFlag: false,
           });
           alert("Invalid Credentials")
+          console.log("Inside else post login");
         }
       })
       .catch((error) => {
@@ -87,16 +88,16 @@ class LoginClass extends Component {
           });
 
         alert("Invalid Credentials")
-        //console.log("Error");
+        console.log(error);
       });        
     };
 
   render() {
     let redirectVar = null;
-    if (cookie.load("cookie")) {
-      console.log("Inside If cookie block in login");
-      redirectVar = <Redirect to="/home" />;
-    }
+    // if (cookie.load("cookie")) {
+    //   console.log("Inside If cookie block in login");
+    //   redirectVar = <Redirect to="/home" />;
+    // }
 
     console.log("Outside If cookie block in login");
     return (

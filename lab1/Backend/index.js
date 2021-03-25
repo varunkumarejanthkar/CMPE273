@@ -7,7 +7,9 @@ var cookieParser = require('cookie-parser');
 var cors = require('cors');
 var service = require('./Services/Service');
 var userModel = require('./Model/UserModel');
+const multer = require('multer');
 const {check,validationResult} = require("express-validator");
+const upload = multer();
 app.set('view engine', 'ejs');
 
 //use cors to allow cross origin resource sharing
@@ -51,32 +53,7 @@ var demo;
 var bookIDArray = [1, 2, 3];
 var sessionUser = "";
 //Route to handle Post Request Call
-app.post('/login',function(req,res){
-    
-    // Object.keys(req.body).forEach(function(key){
-    //     req.body = JSON.parse(key);
-    // });
-    // var username = req.body.username;
-    // var password = req.body.password;
-    //console.log("Inside Login Post Request");
-    //console.log("Req Body : ", username + "password : ",password);
-    //console.log("Req Body : ",req.body);
-    // Users.filter(function(user){
-    //     // if(true){
-    //         res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-    //         req.session.user = user;
-    //         res.writeHead(200,{
-    //             'Content-Type' : 'text/plain'
-    //         })
-    //         res.end("Successful Login");
-    //     // }
-    //     // else
-    //     // {
-    //         // return res.status(400).send({
-    //             // message: 'Login Error'
-    //          // }); 
-    //     // }
-    // })     
+app.post('/login',function(req,res){   
     
     var password = req.body.password;
     var email = req.body.mail;
@@ -93,6 +70,7 @@ app.post('/login',function(req,res){
         res.writeHead(200,{
             'Content-Type' : 'text/plain'
         })
+        console.log(results[0]);
         res.end(JSON.stringify(results[0]));
     })
     .catch(function(err){
@@ -120,44 +98,14 @@ app.post('/Signup',function(req,res){
         res.writeHead(200,{
             'Content-Type' : 'text/plain'
         })
-        res.end(JSON.stringify(results[0]));
+        res.end();
     })
     .catch(function(err){
         console.log("Promise rejection error: "+err);
         return res.status(500).send({
             message: 'Signup Error'
          });
-    })
-    // if(returnValue)
-    // {
-    //     res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-    //         req.session.user = user;
-    //         res.writeHead(200,{
-    //             'Content-Type' : 'text/plain'
-    //         })
-    //         res.end("Successful Login");
-    // }
-    // else{
-    //     return res.status(500).send({
-    //          message: 'Signup Error'
-    //       });
-    // }
-    // Users.filter(function(user){
-    //      if(true){
-    //         res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-    //         req.session.user = user;
-    //         res.writeHead(200,{
-    //             'Content-Type' : 'text/plain'
-    //         })
-    //         res.end("Successful Login");
-    //     // }
-    //     // else
-    //     // {
-    //         // return res.status(400).send({
-    //             // message: 'Login Error'
-    //          // }); 
-    //     // }
-    // })    
+    })    
 });
 
 app.post('/account',function(req,res){    
@@ -170,7 +118,7 @@ app.post('/account',function(req,res){
     .then(function(results){
         res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
         //req.session.user = user;
-        console.log("Inside app post login : " + results);
+        console.log("Inside app post account : " + results);
         res.writeHead(200,{
             'Content-Type' : 'text/plain'
         })
@@ -183,6 +131,254 @@ app.post('/account',function(req,res){
          });
     });
 });
+
+app.get('/createNewGroup', function(req,res){
+    console.log("Inside app.get createNewGroup");    
+    service.getAllUserDetails()    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        console.log("Inside app.get createNewGroup then block");
+        console.log(JSON.stringify(results));
+        res.end(JSON.stringify(results));
+    })
+    .catch(function(err){
+        console.log("Inside app post account - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });     
+})
+
+
+app.post('/createNewGroup',function(req,res){    
+    const userId = req.body.UserId;
+    const groupName = req.body.Groupname;
+    const userNameArray = req.body.UserNameArray;
+    const emailArray = req.body.emailArray;    
+    const userIdArray = req.body.UserIdArray;
+    
+    try{
+        service.createGroup(userId, groupName, userNameArray, emailArray, userIdArray);
+        
+            console.log("Inside index.js app.post createNewGroup if");
+            res.writeHead(200,{
+                     'Content-Type' : 'text/plain'
+                 });       
+            res.end();  
+    }
+    catch(err){
+            console.log("Inside index.js app.post createNewGroup catch block" + err);
+            res.writeHead(200,{
+                'Content-Type' : 'text/plain'
+            });  
+            return res.end();
+    }                  
+});
+
+app.post('/saveExpense',function(req,res){    
+    const expense = req.body.Expense;
+    const groupName = req.body.GroupName;
+    const expenseDescription = req.body.ExpenseDescription; 
+    const userName = req.body.UserName;   
+    const groupId = req.body.GroupID;
+    const userId =req.body.UserId;
+    service.saveExpense(expense, groupName, expenseDescription, userName, groupId, userId)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        console.log("Inside app.get saveExpense then block");
+        //console.log(JSON.stringify(results));
+        res.end();
+    })
+    .catch(function(err){
+        console.log("Inside app post saveExpense - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });                  
+});
+
+app.post('/IsGroupCreated',function(req,res){    
+    var groupName = req.body.GroupName; 
+
+    service.IsGroupCreated(groupName)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+        //req.session.user = user;
+        console.log("Inside app post IsGroupCreated : " + results);
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        console.log("Inside app post IsGroupCreated - Success");
+        res.end();
+    })
+    .catch(function(err){
+        console.log("Inside app post IsGroupCreated - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });
+});
+
+app.post('/saveInvitation',function(req,res){    
+    const userId = req.body.userId;
+    const groupId = req.body.groupId;
+
+    service.saveInvitation(userId, groupId)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});       
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        console.log("Inside app post saveInvitation - Success");
+        res.end();
+    })
+    .catch(function(err){
+        console.log("Inside app post saveInvitation - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });
+});
+
+app.post('/settleUpExpenses',function(req,res){    
+    const userId = req.body.UserId;
+    const userName2 = req.body.UserName;
+    const userId2 = req.body.UserId2;
+
+    service.settleUpExpenses(userId, userName2, userId2)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});       
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        console.log("Inside app post settleUpExpenses - Success");
+        res.end();
+    })
+    .catch(function(err){
+        console.log("Inside app post settleUpExpenses - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });
+});
+
+app.post('/leaveGroup',function(req,res){    
+    const groupId = req.body.GroupId;    
+    const userId = req.body.UserId;
+
+    service.leaveGroup(userId, groupId)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+        //req.session.user = user;
+        //console.log("Inside app post leaveGroup : " + results);
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        console.log("Inside app post leaveGroup - Success");
+        res.end();
+    })
+    .catch(function(err){
+        console.log("Inside app post leaveGroup - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });
+});
+
+app.post('/saveFile', upload.single('file_uplaoded'), function(req, res, next) {
+    // req.file is the `file_uplaoded` file 
+    // req.body will hold the text fields, if there were any 
+    const fileBytes = req.file;    
+    const userId = req.body.UserId;
+
+    service.saveFile(fileBytes, userId)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});      
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        console.log("Inside app post saveFile - Success");
+        res.end();
+    })
+    .catch(function(err){
+        console.log("Inside app post saveFile - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });
+  })
+
+app.get('/GetAllGroupsDetails', function(req,res){
+    console.log("Inside app.get GetAllGroupsDetails : UserId : " + req.query.UserId);       
+    service.getAllGroupDetails(req.query.UserId)  
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+        //req.session.user = user;
+        //console.log("Inside app post login : " + results);
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+
+        console.log("Inside app.get GetAllGroupsDetails then block");        
+        res.end(JSON.stringify(results));
+    })
+    .catch(function(err){
+        console.log("Inside app get GetAllGroupsDetails - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });     
+})
+
+app.get('/GetGroupInvitationDetails', function(req,res){
+    console.log("Inside app.get GetGroupInvitationDetails : UserId : " + req.query.UserId);       
+    service.GetGroupInvitationDetails(req.query.UserId)  
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+        //req.session.user = user;
+        //console.log("Inside app post login : " + results);
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+
+        console.log("Inside app.get GetGroupInvitationDetails then block");        
+        res.end(JSON.stringify(results));
+    })
+    .catch(function(err){
+        console.log("Inside app get GetGroupInvitationDetails - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });     
+})
+
+app.get('/GetAllExpensesDetails', function(req,res){
+    console.log("Inside app.get GetAllExpensesDetails");    
+    console.log(req.query.userId);   
+    service.getAllExpensesDetails(req.query.userId)  
+    .then(function(results){      
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+
+        console.log("Inside app.get GetAllExpensesDetails then block");
+        console.log(JSON.stringify(results));
+        res.end(JSON.stringify(results));
+    })
+    .catch(function(err){
+        console.log("Inside app get GetAllExpensesDetails - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });     
+})
 //Route to get All Books when user visits the Home Page
 app.get('/Signup', function(req,res){
     console.log("Inside app.get Signup");    
@@ -226,12 +422,6 @@ app.post('/create', [
         const result= validationResult(req);
         var error = result.errors;
 
-        // if(bookId == "" || bookname == "" || author == "")
-        // {
-        //     //console.log("fuck you if");
-        //     res.render('create', {errors: error});
-        // }
-        // else
         if(bookIDArray.includes(Number(bookId)))
         {
             //var msg = {"error" : "Please enter unique Book Id"};
@@ -260,36 +450,6 @@ app.post('/create', [
     }
 });
 
-app.post('/delete', [
-    check('bookId', 'Enter valid BookId').not().isEmpty()   
-  ], function (req, res) {
-    const bookId = Number(req.body.deleteId);
-    console.log("Inside Delete : " + bookIDArray);
-    console.log("Book Id : " + bookId);
-
-    if(bookIDArray.includes(bookId))
-    {
-        console.log("Inside delete if");
-        const index = bookIDArray.indexOf(bookId);
-        console.log("before splice : " + bookIDArray);
-        bookIDArray.splice(index, 1);
-        console.log("after splice : " + bookIDArray);        
-        books.splice(index, 1);
-        console.log("\nafter splice : " + books);
-        res.end("Successfully deleted");
-    }
-    else
-    {
-        console.log("Inside delete else");
-        const result= validationResult(req);
-        return res.status(400).send({
-            message: 'Error while deleting book!'
-         });    
-       
-        // var error = result.errors;
-        // res.end('delete', {errors: error})
-    }
-});
 
 //start your server on port 3001
 app.listen(3001);

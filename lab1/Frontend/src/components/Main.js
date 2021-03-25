@@ -7,6 +7,9 @@ import Home from './Home/Home';
 import Landing from './LandingPage/Landing';
 import Account from './Account/Account';
 import CreateNewGroup from './CreateNewGroup/CreateNewGroup';
+import Groups from './Groups/Groups';
+import RecentActivity from './RecentActivity/RecentActivity';
+import MyGroups from './MyGroups/MyGroups';
 //Create a Main Component
 class Main extends Component {
     render(){
@@ -20,6 +23,9 @@ class Main extends Component {
                 <Route path="/landing" component={Landing}/>      
                 <Route path="/account" component={Account}/>      
                 <Route path="/createNewGroup" component={CreateNewGroup}/>      
+                <Route path="/groups" component={Groups}/>  
+                <Route path="/recentActivity" component={RecentActivity}/>      
+                <Route path="/myGroups" component={MyGroups}/>      
             </div>
         )
     }
