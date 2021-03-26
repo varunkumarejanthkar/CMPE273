@@ -152,6 +152,27 @@ app.get('/createNewGroup', function(req,res){
     });     
 })
 
+app.get('/getRecentActivityDetails', function(req,res){
+    console.log("Inside app.get getRecentActivityDetails");    
+    const userId = req.query.UserId;
+    service.getRecentActivityDetails(userId)    
+    .then(function(results){
+        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
+        res.writeHead(200,{
+            'Content-Type' : 'text/plain'
+        })
+        console.log("Inside app.get getRecentActivityDetails then block");
+        console.log(JSON.stringify(results));
+        res.end(JSON.stringify(results));
+    })
+    .catch(function(err){
+        console.log("Inside app get getRecentActivityDetails - Promise rejection error: "+err);
+        return res.status(500).send({
+            message: err
+         });
+    });     
+})
+
 
 app.post('/createNewGroup',function(req,res){    
     const userId = req.body.UserId;

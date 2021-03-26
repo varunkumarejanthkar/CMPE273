@@ -137,22 +137,29 @@ class Home extends Component {
         });
 
         for(const obj in surlprusObj)
-        {            
+        {         
+            this.state.settleUpobjs.push(obj);
+
            if(deficitObj[obj] !== undefined)
            {
                 if(surlprusObj[obj] > deficitObj[obj])
                 {
                     surlprusObj[obj] = surlprusObj[obj] - deficitObj[obj];
-                    this.state.settleUpobjs.push(obj);
                     deficitObj[obj] = 0;
                 }
                 else{
-                    this.state.settleUpobjs.push(obj);
+                    //this.state.settleUpobjs.push(obj);
                     deficitObj[obj] = deficitObj[obj] - surlprusObj[obj];
                     surlprusObj[obj] = 0;
                 }
            }
         }
+
+        for(const obj in deficitObj)
+        {
+            this.state.settleUpobjs.push(obj);
+        }
+
         var html = "<ul>";
         console.log(surlprusObj);
         for(const obj in surlprusObj)
@@ -202,15 +209,17 @@ class Home extends Component {
         {
             const userName = this.getUserNameFromId(obj);
             createObj[userName] = obj;
-            html += "<button id = 'btn"+ userName + "' onclick = 'this.settleUpFunc()' style = 'font-weight:700;margin-left: 100px; margin-top: 5px; border-radius: 5px; border: 0px; background: white'>" + userName + "</button>";
-            this.setState( 
-            {
-                modalHtml : html,
-                settleUpList: createObj
-            });  
+            html += "<button id = 'btn"+ userName + "' onclick = 'this.settleUpFunc()' style = 'font-size: 50px;font-weight:700;margin-left: 100px; margin-top: 5px; border-radius: 5px; border: 0px; background: white'>" + userName + "</button>";
+             
 
             //document.getElementById("btn" + userName).onclick = this.settleUp;
         }
+
+        this.setState( 
+            {
+                modalHtml : html,
+                settleUpList: createObj
+            }); 
     }
 
     renderOnClickEvent = () => 

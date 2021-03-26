@@ -534,6 +534,30 @@ const saveFile = (fileBytes, userId) => {
   });
 }
 
+const getRecentActivityDetails = (userId) => {
+  const con = createConnection();
+
+  return new Promise(function (resolve, reject) {
+    con.query(
+      "Select activity from `dbo.splitwise`.RecentActivity where UserId = ?",
+      [userId],      
+      function (err, result, fields) {
+        if (err) {
+          con.end();
+          console.log("Inside db.getRecentActivityDetails error: " + err);
+          reject(err);
+        }
+        if (result) {
+          //console.log(result);          
+            console.log("Inside db.getRecentActivityDetails - result block : ");
+            con.end();
+            resolve(result);          
+        }
+      }
+    );
+  });
+}
+
 exports.saveSignUpDetails = saveSignUpDetails;
 exports.GetUserDetails = GetUserDetails;
 exports.saveUserDetails = saveUserDetails;
@@ -550,3 +574,4 @@ exports.saveInvitation = saveInvitation;
 exports.leaveGroup = leaveGroup;
 exports.settleUpExpenses = settleUpExpenses;
 exports.saveFile = saveFile;
+exports.getRecentActivityDetails = getRecentActivityDetails;

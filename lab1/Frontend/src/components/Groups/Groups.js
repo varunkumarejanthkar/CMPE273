@@ -242,7 +242,7 @@ renderGroupExpensesOnclick = (e) =>
         GroupID : this.state.activeGroupId,
         UserName: this.state.user.UserName
     };
-    alert(expense);
+    //alert(expense);
     axios.defaults.withCredentials = true;
     axios
       .post(url + "/saveExpense", data)

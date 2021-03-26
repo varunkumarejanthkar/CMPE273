@@ -62,7 +62,15 @@ class RecentActivity extends Component {
                 this.setState({
                     allUserDetails : response.data
                 });
+                axios.get(url + '/getRecentActivityDetails?UserId=' + this.state.user.UserId)
+                .then((response) =>{
+                  console.log("Inside getRecentActivityDetails axios.get");
+                  console.log(response.data);
+                  this.setState({
+                      recentActivities : response.data[0].activity
+                  });
                 this.renderRecentActivities();
+                })
             })
             .catch((error) => {
                 this.setState({
@@ -140,8 +148,10 @@ class RecentActivity extends Component {
 
     html += "</div>";
     console.log("html : " + html);
-    console.log(document.getElementById("divExpenses"));
-    document.getElementById("divRecentActivity").innerHTML = html;   
+    console.log(document.getElementById("divExpenses"));    
+    var text = this.state.recentActivities;    
+    text = text.split(".").join("<br/><br/>");    
+    document.getElementById("divRecentActivity").innerHTML = "<br/>" + text;   
   }
 
     getUserName = (UserId) => {

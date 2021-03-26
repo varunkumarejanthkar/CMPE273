@@ -143,6 +143,10 @@ const saveFile = (fileBytes, userId) => {
   return dbConnect.saveFile(fileBytes, userId);
 }
 
+const getRecentActivityDetails = (userId) => {
+  return dbConnect.getRecentActivityDetails(userId);
+}
+
 exports.signupService = signupService;
 exports.loginService = loginService;
 exports.updateUserDetails = updateUserDetails;
@@ -157,3 +161,4 @@ exports.saveInvitation = saveInvitation;
 exports.leaveGroup = leaveGroup;
 exports.settleUpExpenses = settleUpExpenses;
 exports.saveFile = saveFile;
+exports.getRecentActivityDetails = getRecentActivityDetails;
