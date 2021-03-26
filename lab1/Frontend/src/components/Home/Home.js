@@ -136,10 +136,11 @@ class Home extends Component {
             deficit: deficit
         });
 
+        const arr = [];
         for(const obj in surlprusObj)
         {         
             this.state.settleUpobjs.push(obj);
-
+            arr.push(obj.UserName);
            if(deficitObj[obj] !== undefined)
            {
                 if(surlprusObj[obj] > deficitObj[obj])
@@ -157,6 +158,10 @@ class Home extends Component {
 
         for(const obj in deficitObj)
         {
+            if(arr.includes(obj.UserName))
+            {
+                continue;
+            }
             this.state.settleUpobjs.push(obj);
         }
 
@@ -224,6 +229,7 @@ class Home extends Component {
 
     renderOnClickEvent = () => 
     {
+        alert("hi");
         for(const obj in this.state.settleUpList)
         {
             document.getElementById("btn" + obj).onclick = this.settleUpFunc;
@@ -288,7 +294,7 @@ class Home extends Component {
                                 <div style = {{paddingLeft: "73%", paddingTop: "9px"}}>
                                     <Popup trigger={<button id = "btnSettleUp" style = {{fontSize: "18px", width: "106px",height:"37px", borderRadius: "5px", border: "0px", background: "#5bc5a7", color: "white"}}>Settle Up</button>} modal>
                                         <div>
-                                            <button style = {{border: "none", outline: "none",  marginLeft: "165px"}} onClick = {this.renderOnClickEvent}></button>
+                                            <button style = {{border: "none", cursor:"none", fontSize:"16px",outline: "none",  marginLeft: "165px"}} onClick = {this.renderOnClickEvent}>Settle Up</button>
                                         </div>
                                         <div id = "divSettleUpModal" dangerouslySetInnerHTML = {{ __html: this.state.modalHtml }}>                                                                                        
                                         </div>                                       
