@@ -35,6 +35,6 @@ npm start
 
 To run the backend, go into the backend directory and run the following command:
 
-npm start
+node index.js
 
 To use the application, visit the following url from your browser: http://localhost:3000/
