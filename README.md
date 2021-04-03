@@ -1,5 +1,7 @@
 Splitwise Prototype
-This a prototype of Splitwise.com built using React.js, Node.js and MySQL. The prototype is built as a lab requirement for Enterprise Distributed Systems (CMPE - 273) class at San Jose State University, under professor Simon Shim.
+
+
+This is a prototype of Splitwise.com built using React.js, Node.js and MySQL. The prototype is built as a lab requirement for Enterprise Distributed Systems (CMPE - 273) class at San Jose State University, under professor Simon Shim.
 
 Getting Started
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
@@ -33,6 +35,6 @@ npm start
 
 To run the backend, go into the backend directory and run the following command:
 
-npm start
+node index.js
 
 To use the application, visit the following url from your browser: http://localhost:3000/
