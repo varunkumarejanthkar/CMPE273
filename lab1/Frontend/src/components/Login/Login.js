@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
-import cookie from "react-cookies";
-import { Redirect } from "react-router";
 import { connect } from "react-redux";
 import { loginAction } from "../../js/actions/index";
 import {url} from "../Constants";
@@ -40,12 +38,17 @@ class LoginClass extends Component {
   };
 
   validateInputData = (data) => {
-    if (data.mail.trim() == "" || data.password.trim() == "") {
+    if (data.mail.trim() === "" || data.password.trim() === "") {
       return false;
     }
 
     return true;
   };
+
+  validateEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
 
   submitLogin = async (e) => {
     e.preventDefault();
@@ -56,6 +59,12 @@ class LoginClass extends Component {
 
     if (!this.validateInputData(data)) {
       alert("Please enter valid email address and password");
+      return;
+    }
+
+    if(!this.validateEmail(data.mail))
+    {
+      alert("Please enter valid email format");
       return;
     }
        
@@ -94,7 +103,7 @@ class LoginClass extends Component {
     };
 
   render() {
-    let redirectVar = null;
+    //let redirectVar = null;
     // if (cookie.load("cookie")) {
     //   console.log("Inside If cookie block in login");
     //   redirectVar = <Redirect to="/home" />;
@@ -102,8 +111,7 @@ class LoginClass extends Component {
 
     console.log("Outside If cookie block in login");
     return (
-      <div>
-        {redirectVar}
+      <div>        
         <div class="container">
           <img
             width="200"

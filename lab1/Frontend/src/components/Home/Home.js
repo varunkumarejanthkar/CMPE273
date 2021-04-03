@@ -19,7 +19,7 @@ class Home extends Component {
            settleUpList: {}
         }
     }  
-    //get the books data from backend  
+    
     componentWillMount()
     {      
         if(sessionStorage.getItem("user") === null)
@@ -27,7 +27,11 @@ class Home extends Component {
             return;
         }
 
-        console.log("Inside MyGroups componentDidMount : ");    
+        console.log("Inside MyGroups componentDidMount : ");   
+        // const obj = JSON.parse(sessionStorage.getItem("user"));
+        // this.setState({
+        //     user : obj
+        // }); 
         this.state.user = JSON.parse(sessionStorage.getItem("user")); 
         console.log(this.state.user);
         axios.get(url + '/GetAllExpensesDetails?userId=' + this.state.user.UserId)
@@ -93,12 +97,7 @@ class Home extends Component {
             console.log(error);
             alert("Something went wrong");        
         });
-    }
-
-    componentDidMount()
-    {
-        //document.getElementById("btnSettleUp").onclick = this.renderSettleUpModal;
-    }
+    }   
 
     renderDashboard = () =>
     {
@@ -214,7 +213,7 @@ class Home extends Component {
         {
             const userName = this.getUserNameFromId(obj);
             createObj[userName] = obj;
-            html += "<button id = 'btn"+ userName + "' onclick = 'this.settleUpFunc()' style = 'font-size: 50px;font-weight:700;margin-left: 100px; margin-top: 5px; border-radius: 5px; border: 0px; background: white'>" + userName + "</button>";
+            html += "<button id = 'btn"+ userName + "' style = 'font-size: 42px;font-weight:700;margin-left: 100px; margin-top: 5px; border-radius: 5px; border: 0px; background: white'>" + userName + "</button>";
              
 
             //document.getElementById("btn" + userName).onclick = this.settleUp;
@@ -224,24 +223,25 @@ class Home extends Component {
             {
                 modalHtml : html,
                 settleUpList: createObj
-            }); 
+            });            
     }
 
     renderOnClickEvent = () => 
-    {
-        alert("hi");
+    {        
         for(const obj in this.state.settleUpList)
         {
             document.getElementById("btn" + obj).onclick = this.settleUpFunc;
         }
     }
     settleUpFunc = (e) => {
-        const userName = e.srcElement.id.substring(3, e.srcElement.id.length);
+        const userName2 = e.srcElement.id.substring(3, e.srcElement.id.length);
         const curUserId = this.state.user.UserId;
-        const userId2 = this.state.settleUpList[userName];
+        const userId2 = this.state.settleUpList[userName2];
+        const userName1 = this.state.user.UserName;
         //alert(curUserId + " : " + userName + " : " + userId2);
         const data = {
-            UserName : userName,
+            UserName1 : userName1,
+            UserName2 : userName2,
             UserId : curUserId,
             UserId2 : userId2
         }
@@ -292,12 +292,15 @@ class Home extends Component {
                             <div style = {{background: "#ddd", height: "21%"}}>
                                 <div style = {{float: "left"}}><label style = {{fontSize: "26px", marginTop: "-8px", marginLeft: "18px"}}>Dashboard</label></div>
                                 <div style = {{paddingLeft: "73%", paddingTop: "9px"}}>
-                                    <Popup trigger={<button id = "btnSettleUp" style = {{fontSize: "18px", width: "106px",height:"37px", borderRadius: "5px", border: "0px", background: "#5bc5a7", color: "white"}}>Settle Up</button>} modal>
+                                    <Popup trigger={<button id = "btnSettleUp" onClick = {this.renderOnClickEvent} style = {{fontSize: "18px", width: "106px",height:"37px", borderRadius: "5px", border: "0px", background: "#5bc5a7", color: "white"}}>Settle Up</button>} modal>
                                         <div>
-                                            <button style = {{border: "none", cursor:"none", fontSize:"16px",outline: "none",  marginLeft: "165px"}} onClick = {this.renderOnClickEvent}>Settle Up</button>
+                                            <button style = {{border: "none", cursor:"none", fontSize:"20px",outline: "none",  marginLeft: "117px", background: "white"}} onClick = {this.renderOnClickEvent}>Settle Up</button>
                                         </div>
                                         <div id = "divSettleUpModal" dangerouslySetInnerHTML = {{ __html: this.state.modalHtml }}>                                                                                        
-                                        </div>                                       
+                                        </div>  
+                                        {/* <script type="text/javascript">
+                                            {this.renderOnClickEvent()};
+                                        </script>                                      */}
                                     </Popup>                                    
                                 </div>
                                 <div style = {{borderTop: "1px solid white", marginTop: "2%"}}>
@@ -312,13 +315,13 @@ class Home extends Component {
                                     </div>
                                 </div>
                                 <div style = {{marginTop: "7%", marginLeft: "5%"}}>
-                                    <div style = {{float: "left", width: "20%", marginTop: "1%", marginLeft: "4%"}}>
+                                    <div style = {{float: "left", width: "20%", marginTop: "1%", marginLeft: "-2%"}}>
                                         <label style = {{fontWeight : "100"}}>${this.state.surlprus - this.state.deficit}</label>
                                     </div>
-                                    <div style = {{float: "left", width: "20%", marginTop: "1%", marginLeft: "14%"}}>
+                                    <div style = {{float: "left", width: "20%", marginTop: "1%", marginLeft: "17%"}}>
                                         <label style = {{fontWeight : "100"}}>${this.state.deficit}</label>
                                     </div>
-                                    <div style = {{float: "left", marginTop: "1%", marginLeft: "15%", paddingLeft: "22px"}}>
+                                    <div style = {{float: "left", marginTop: "1%", marginLeft: "12%", paddingLeft: "22px"}}>
                                         <label style = {{fontWeight : "100"}}>${this.state.surlprus}</label>
                                     </div>
                                 </div>

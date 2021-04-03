@@ -66,9 +66,12 @@ class RecentActivity extends Component {
                 .then((response) =>{
                   console.log("Inside getRecentActivityDetails axios.get");
                   console.log(response.data);
-                  this.setState({
+                  if(response.data.length > 0)
+                  {
+                    this.setState({
                       recentActivities : response.data[0].activity
-                  });
+                    });
+                  }
                 this.renderRecentActivities();
                 })
             })
@@ -99,58 +102,63 @@ class RecentActivity extends Component {
   });
   }
 
-  renderRecentActivities = () =>{        
-    const currentUserDetails = [];
+   renderRecentActivities = () =>{        
+  //   const currentUserDetails = [];
     
-    for(const obj of this.state.allExpenseDetails)
-    {      
-      if(obj.UserId === this.state.user.UserId || obj.UserId2 === this.state.user.UserId)
-      {
-        currentUserDetails.push(obj);       
-      }
-    }
-    // const currentActiveGroupDetails = this.state.allExpenseDetails.filter(function (e) {
-    //     return (e.GroupId) === activeGroupId;
-    // });
-    currentUserDetails.reverse();
-    console.log(currentUserDetails);    
-    var html = "<div style = 'margin-left:4px;'>";
-    const arr = [];
-    for(const obj of currentUserDetails)
-    {       
-      if(arr.includes(obj.ExpenseDescription))
-      {
-        continue;
-      }
-      else{
-        arr.push(obj.ExpenseDescription);
-      }
-       console.log(obj.CreatedTime); 
-       var date = obj.CreatedTime.split("-");
-       const month = this.state.months[date[1] - 1];
-       const year = date[0];       
-       const grpName = this.getGroupName(obj.GroupId);
-       const expense = obj.Expense * this.getGroupSize(grpName);
-       const UserName = this.getUserName(obj.UserId);
-       const User = UserName;
-       const description = obj.ExpenseDescription;
-       html += "<img alt = '' style = 'width: 30px' src = 'https://s3.amazonaws.com/splitwise/uploads/category/icon/square_v2/food-and-drink/groceries@2x.png'></img>"
-       html+= User + " added \"" + description + "\" in " + grpName + " of amount USD " + expense + " on " + month + " " + date[1];
-    //    html += "</div><div><label class = 'lblMonth' style='margin-left: 110px;'>" + User + "</label>";
+  //   for(const obj of this.state.allExpenseDetails)
+  //   {      
+  //     if(obj.UserId === this.state.user.UserId || obj.UserId2 === this.state.user.UserId)
+  //     {
+  //       currentUserDetails.push(obj);       
+  //     }
+  //   }
+  //   // const currentActiveGroupDetails = this.state.allExpenseDetails.filter(function (e) {
+  //   //     return (e.GroupId) === activeGroupId;
+  //   // });
+  //   currentUserDetails.reverse();
+  //   console.log(currentUserDetails);    
+  //   var html = "<div style = 'margin-left:4px;'>";
+  //   const arr = [];
+  //   for(const obj of currentUserDetails)
+  //   {       
+  //     if(arr.includes(obj.ExpenseDescription))
+  //     {
+  //       continue;
+  //     }
+  //     else{
+  //       arr.push(obj.ExpenseDescription);
+  //     }
+  //      console.log(obj.CreatedTime); 
+  //      var date = obj.CreatedTime.split("-");
+  //      const month = this.state.months[date[1] - 1];
+  //      const year = date[0];       
+  //      const grpName = this.getGroupName(obj.GroupId);
+  //      const expense = obj.Expense * this.getGroupSize(grpName);
+  //      const UserName = this.getUserName(obj.UserId);
+  //      const User = UserName;
+  //      const description = obj.ExpenseDescription;
+  //      html += "<img alt = '' style = 'width: 30px' src = 'https://s3.amazonaws.com/splitwise/uploads/category/icon/square_v2/food-and-drink/groceries@2x.png'></img>"
+  //      html+= User + " added \"" + description + "\" in " + grpName + " of amount USD " + expense + " on " + month + " " + date[1];
+  //   //    html += "</div><div><label class = 'lblMonth' style='margin-left: 110px;'>" + User + "</label>";
 
-    //    html += "<div style = 'float: left; width: 250px'><label class = 'lblMonth' style = 'margin-left: 5px;margin-right: 5px;font-weight: 100; color: #777272'>" + month + "" + year + "</label>";
-    //    //html += "<label class = 'lblYear' style = 'font-weight: 100; color: #777272'>" + year + "</label>";
-    //    html += "<img alt = '' style = 'width: 30px' src = 'https://s3.amazonaws.com/splitwise/uploads/category/icon/square_v2/food-and-drink/groceries@2x.png'></img>"
-    //    html += "<label style = 'margin-left: 12px' class = 'lblDescription'>" + description + "</label>";       
-      // html += "<label class = 'lblExpense'>" + expense + "</label></div>";
-       html += "<br/><br/>";
-    }
+  //   //    html += "<div style = 'float: left; width: 250px'><label class = 'lblMonth' style = 'margin-left: 5px;margin-right: 5px;font-weight: 100; color: #777272'>" + month + "" + year + "</label>";
+  //   //    //html += "<label class = 'lblYear' style = 'font-weight: 100; color: #777272'>" + year + "</label>";
+  //   //    html += "<img alt = '' style = 'width: 30px' src = 'https://s3.amazonaws.com/splitwise/uploads/category/icon/square_v2/food-and-drink/groceries@2x.png'></img>"
+  //   //    html += "<label style = 'margin-left: 12px' class = 'lblDescription'>" + description + "</label>";       
+  //     // html += "<label class = 'lblExpense'>" + expense + "</label></div>";
+  //      html += "<br/><br/>";
+  //   }
 
-    html += "</div>";
-    console.log("html : " + html);
-    console.log(document.getElementById("divExpenses"));    
-    var text = this.state.recentActivities;    
-    text = text.split(".").join("<br/><br/>");    
+  //   html += "</div>";
+  //   console.log("html : " + html);
+  //   console.log(document.getElementById("divExpenses"));  
+    var text = this.state.recentActivities;
+    text = text.replaceAll(this.state.user.UserName, 'You');          
+    text = text.split(';');   
+    //text = text.replace(this.state.UserName, 'You');   
+    text = text.reverse();
+      //text[text.length - 1] = '';
+    text = text.join('\n<br/><br/>');
     document.getElementById("divRecentActivity").innerHTML = "<br/>" + text;   
   }
 

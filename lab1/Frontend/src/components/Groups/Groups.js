@@ -90,6 +90,9 @@ class Groups extends Component {
   }
   //get the books data from backend
   componentWillMount() {        
+    // this.setState({
+    //   user : JSON.parse(sessionStorage.getItem("user"))
+    // });
     this.state.user = JSON.parse(sessionStorage.getItem("user")); 
     console.log(this.state.user);
     axios.get(url + '/GetAllGroupsDetails?UserId=' + this.state.user.UserId)
@@ -225,15 +228,14 @@ renderGroupExpensesOnclick = (e) =>
     const expenseDescription = document.getElementById("txtExpenseDescription").value;
     const expense = document.getElementById("txtExpense").value;
  
-    if(expenseDescription.trim() === "" || expense.trim() === "")
+    if(expenseDescription.trim() === "" || expense.trim() === "" || isNaN(expense.trim()))
     {
       alert("Please enter valid expense details");
       return;
     }
     console.log("Expense" + expense);
     this.setActiveGroupId();
-    console.log(this.state.activeGroup + " : " + this.state.activeGroupId);
-    
+    console.log(this.state.activeGroup + " : " + this.state.activeGroupId);    
     const data = {
         GroupName : this.state.activeGroup,
         Expense : expense,
@@ -309,7 +311,7 @@ renderGroupExpensesOnclick = (e) =>
       if(cur[obj.ExpenseDescription] != null && obj.ExpenseDescription !== undefined)
       {
         cur[obj.ExpenseDescription].Expense += obj.Expense;  
-        exp[obj.ExpenseDescription] = obj.Expense;              
+        //exp[obj.ExpenseDescription] = obj.Expense;              
       }
       else
       {
@@ -317,6 +319,8 @@ renderGroupExpensesOnclick = (e) =>
         cur[obj.ExpenseDescription] = obj;
         uniqueExpenseDescription.push(obj.ExpenseDescription);
       }
+
+      exp[obj.ExpenseDescription] = obj.Expense;              
     }
     for(const uep of uniqueExpenseDescription)
     {       
@@ -324,8 +328,10 @@ renderGroupExpensesOnclick = (e) =>
        var date = obj.CreatedTime.split("-");
        const month = this.state.months[date[1] - 1];
        const year = date[0];       
-       //const expense = obj.Expense * this.state.activeGroupSize;
-       const expense = obj.Expense + exp[uep];
+       //const expense = obj.Expense * this.state.activeGroupSize;       
+
+       var expense = (obj.Expense + exp[uep]) + "";
+       expense = expense.split('.')[0];
        var UserName = this.getUserName(obj.UserId);
       // alert("UserName : " + UserName + " : " +  this.state.activeGroup);
 

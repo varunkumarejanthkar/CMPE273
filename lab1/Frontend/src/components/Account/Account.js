@@ -69,8 +69,12 @@ class AccountClass extends Component {
           });
 
           sessionStorage.setItem("user", JSON.stringify(data));
-          this.uploadFile();
+          this.setState({
+            user : data
+          })
+          //this.state.user = data;
           alert("User data saved successfully");
+          this.uploadFile();
 
           //this.props.loginAction(response.data);
 
@@ -95,17 +99,42 @@ class AccountClass extends Component {
   uploadFile = () =>
   {
     let files = document.getElementById("myImage").files;
+    var btnFileData;
     if (FileReader && files && files.length) {
       var fr = new FileReader();
       fr.onload = function () {        
         console.log(document.getElementsByClassName("picture-frame"));
         document.getElementsByClassName("picture-frame")[0].src = fr.result;
+        //console.log(fr.result);
+        btnFileData = fr.result;
+        const user = JSON.parse(sessionStorage.getItem("user"));    
+        user.FileBytes = btnFileData;//{mimetype:"buffer", data:myBase64Data};
+        sessionStorage.setItem("user", JSON.stringify(user));
       }
       fr.readAsDataURL(files[0]);
     }
     //document.getElementsByClassName("picture-frame").src = photo;
+    // var myImage = document.getElementById('myImage');
+    // var myCanvas = document.getElementById('mycanvas');
+    // var ctx = myCanvas.getContext('2d');
+    // ctx.drawImage(myImage, 0, 0);
+
+    //var myDataURL = myCanvas.toDataURL('image/png');
+    //var myBase64Data = myDataURL.split(',')[1];
+    //console.log(document.getElementsByClassName("picture-frame")[0].src);
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    //console.log(btnFileData);    
+    user.FileBytes = btnFileData;//{mimetype:"buffer", data:myBase64Data};
+    sessionStorage.setItem("user", JSON.stringify(user));
+    this.setState({
+      user : user
+    })
+    //this.state.user = user;
+    console.log(user);
     let formData = new FormData();     
     formData.append("file_uplaoded", files[0]);
+    console.log("upload file");
+    console.log(files[0]);
     formData.append("UserId", this.state.user.UserId)
     fetch(url + '/saveFile', {method: "POST", body: formData});
   }
@@ -131,7 +160,25 @@ class AccountClass extends Component {
     // });
   }
   componentDidMount(){
-    console.log(document.getElementsByClassName("picture-frame"));
+    // console.log(document.getElementsByClassName("picture-frame"));
+    // var urlCreator = window.URL || window.webkitURL;
+    // var binaryData = [];
+    // binaryData.push(this.state.user.FileBytes.data);    
+    // var imgUrl = urlCreator.createObjectURL(new Blob(binaryData, {type: "application/png"}));
+    
+      if(this.state.user.FileBytes !== undefined && this.state.user.FileBytes !== null)
+      {
+        if(this.state.user.FileBytes.data !== undefined && this.state.user.FileBytes.data !== null)
+        {
+          document.getElementById("imgProfile").src = `data:${this.state.user.FileBytes.mimetype};base64,${Buffer.from(this.state.user.FileBytes.data).toString('base64')}`;
+        }
+        else
+        {
+          document.getElementById("imgProfile").src = this.state.user.FileBytes;
+        }
+      }
+    
+    
   }
 
   render() {
@@ -159,10 +206,12 @@ class AccountClass extends Component {
               style={{ width: "244px", float: "left" }}
             >
               <label style={{ fontSize: "215%" }}>Your account</label>
+              
               <img
+                id = "imgProfile"
                 style = {{height: "214px", width: "85%"}}
                 class="picture-frame"
-                alt = ""
+                alt = ""                
                 src="https://s3.amazonaws.com/splitwise/uploads/user/default_avatars/avatar-orange44-200px.png"
               ></img>
               <input style = {{marginTop: "6px"}} type="file" id="myImage" name="filename"></input>
@@ -220,7 +269,7 @@ class AccountClass extends Component {
               <input
                 type="textbox"
                 id="txtTimeZone"
-                defaultValue=""
+                defaultValue="(GMT-08:00) Pacific Time (US & Canada)"
                 style={inputTextStyles}
               />
               <br />

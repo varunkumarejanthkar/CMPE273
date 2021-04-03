@@ -98,7 +98,7 @@ app.post('/Signup',function(req,res){
         res.writeHead(200,{
             'Content-Type' : 'text/plain'
         })
-        res.end(JSON.stringify(results[0]));
+        res.end(results);
     })
     .catch(function(err){
         console.log("Promise rejection error: "+err);
@@ -192,7 +192,7 @@ app.post('/createNewGroup',function(req,res){
     }
     catch(err){
             console.log("Inside index.js app.post createNewGroup catch block" + err);
-            res.writeHead(200,{
+            res.writeHead(500,{
                 'Content-Type' : 'text/plain'
             });  
             return res.end();
@@ -269,10 +269,11 @@ app.post('/saveInvitation',function(req,res){
 
 app.post('/settleUpExpenses',function(req,res){    
     const userId = req.body.UserId;
-    const userName2 = req.body.UserName;
+    const userName1 = req.body.UserName1;
+    const userName2 = req.body.UserName2;
     const userId2 = req.body.UserId2;
 
-    service.settleUpExpenses(userId, userName2, userId2)    
+    service.settleUpExpenses(userId, userName1, userName2, userId2)    
     .then(function(results){
         res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});       
         res.writeHead(200,{

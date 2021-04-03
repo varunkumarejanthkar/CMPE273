@@ -25,20 +25,24 @@ const decrypt = (encryptedCode) => {
 };
 
 const signupService = (userModel) => {
+  const password = userModel.password;
   userModel.password = encrypt(userModel.password);
+  return new Promise(function (resolve, reject) {
   dbConnect.saveSignUpDetails(userModel)
-  .then(function(){
-    dbConnect.GetUserDetails(userModel)
-    .then(function(results){
-      resolve(results[0]);
-    })
-    .catch(function(err) {
-      reject("Not Unique mail : " + err);
-    })
+  .then(function(results){
+    // dbConnect.GetUserDetails(userModel)
+    // .then(function(results){
+      results.Password = password;
+      resolve(JSON.stringify(results));
+    // })
+    // .catch(function(err) {
+    //   reject("Not Unique mail : " + err);
+    // })
   })
   .catch(function(err){
     reject("Not Unique mail : " + err);
   })
+});
 };
 
 const loginService = (userModel) => {
@@ -74,7 +78,36 @@ const updateUserDetails = (userModel) => {
     return dbConnect.saveUserDetails(userModel);
 }
 
+const getDate = () => {
+  const d = new Date();
+  var today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yyyy = today.getFullYear();
+  today = mm + '/' + dd + '/' + yyyy;
+  return today;
+}
+const createGroupRecentActivity = (userId, groupName, userNameArray, userIdArray) => {
+  var count = 0;
+  var str = "";
+
+  for(const obj of userIdArray)
+  {
+    if(obj === userId)
+    {
+      str += userNameArray[count];
+      break;
+    }
+
+    count++;
+  }
+
+  str += " created the group " + groupName + " on " + getDate();
+  return str;
+}
+
 const createGroup = (userId, groupName, userNameArray, emailArray, userIdArray) => {
+    const recentActivity = createGroupRecentActivity(userId, groupName, userNameArray, userIdArray);
     //return dbConnect.createGroup(userId, groupName, userIdArray, emailArray);
    // return new Promise(function (resolve, reject) {
       dbConnect.createGroup(userId, groupName, userNameArray, emailArray)
@@ -82,7 +115,7 @@ const createGroup = (userId, groupName, userNameArray, emailArray, userIdArray) 
           dbConnect.getGroupDetails(groupName)
           .then(function(result){
             const groupId = result;
-            dbConnect.InsertUserGroupRelationships(userId, groupName, userNameArray, emailArray, userIdArray, groupId)
+            dbConnect.InsertUserGroupRelationships(userId, groupName, userNameArray, emailArray, userIdArray, groupId, recentActivity)
             .then(function(result){
               resolve("Success");
             }) 
@@ -120,7 +153,8 @@ const getAllExpensesDetails = (userId) => {
 }
 
 const saveExpense = (expense, groupName, expenseDescription, userName, groupId, userId) => {
-  return dbConnect.saveExpense(expense, groupName, expenseDescription, userName, groupId, userId);
+  const strExpense  = userName + " added the expense " + expenseDescription + " in the group " + groupName + " on " + getDate();
+  return dbConnect.saveExpense(expense, groupName, expenseDescription, userName, groupId, userId, strExpense);
 }
 
 const GetGroupInvitationDetails = (userId) => {
@@ -135,8 +169,9 @@ const leaveGroup = (userId, groupId) => {
   return dbConnect.leaveGroup(userId, groupId);
 }
 
-const settleUpExpenses = (userId, userName2, userId2) => {
-  return dbConnect.settleUpExpenses(userId, userName2, userId2);
+const settleUpExpenses = (userId, userName1, userName2, userId2) => {
+  const activity = userName1 + " settled up the expenses with " + userName2 + " on " + getDate();
+  return dbConnect.settleUpExpenses(userId, userName2, userId2, activity);
 }
 
 const saveFile = (fileBytes, userId) => {

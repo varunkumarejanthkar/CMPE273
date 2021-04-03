@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import '../../App.css';
 import axios from 'axios';
-import cookie from 'react-cookies';
-import {Redirect} from 'react-router';
 import { connect } from "react-redux";
 import {loginAction} from '../../js/actions/index'
 import {url} from "../Constants"
@@ -100,7 +98,8 @@ class Signup extends Component{
 
                     console.log("Inside axios signup : ",response.status);
                     console.log(response.data);
-                    sessionStorage.setItem("user", JSON.stringify(response.data[0]));
+                    sessionStorage.setItem("user", JSON.stringify(response.data));
+                    //sessionStorage.setItem("user", JSON.stringify(response.data[0]));
                     this.props.history.push("/home");                    
                 }else{
                     this.setState({
