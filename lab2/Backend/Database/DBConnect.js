@@ -2,20 +2,20 @@ const mysql = require("mysql");
 const UserModel = require("../Model/UserModel");
 
 const createConnection = () => {
-  // const con = mysql.createConnection({
-  //   host: "splitwisedatabase.cwgv9f0vak1r.us-east-2.rds.amazonaws.com",
-  //   user: "admin",
-  //   password: "Splitwise12345",
-  // });
-
   const con = mysql.createConnection({
-    host: "localhost",
-    //port:"3306",
-    user: "root",
-    password: "password",
-    insecureAuth : true
-//    database: 'LocalDB'
+    host: "splitwisedatabase.cwgv9f0vak1r.us-east-2.rds.amazonaws.com",
+    user: "admin",
+    password: "Splitwise12345",
   });
+
+//   const con = mysql.createConnection({
+//     host: "localhost",
+//     //port:"3306",
+//     user: "root",
+//     password: "password",
+//     insecureAuth : true
+// //    database: 'LocalDB'
+//   });
   con.connect(function (err) {
     if (err) throw err;
     console.log("Connected!");
@@ -401,6 +401,31 @@ const getUserGroupId = (userName, groupId) =>
   });
 }
 
+const saveExpenseComment = (expenseComment, expenseName) =>
+{
+  const con = createConnection();
+  return new Promise(function (resolve, reject) {
+    con.query(
+      "update `dbo.splitwise`.UserExpenses set ExpenseComments = ? where ExpenseDescription = ?",
+      [expenseComment, expenseName],      
+      function (err, result, fields) {
+        con.end();
+        if (err) {
+          //con.end();
+          console.log("Inside db.saveExpenseComment error: " + err);
+          reject(err);
+        }
+        if (result) {
+          //console.log(result);          
+            console.log("Inside db.saveExpenseComment - result block : " + result);
+            //con.end();
+            resolve(result);          
+        }
+      }
+    );
+  });
+}
+
 const saveExpense = (expense, groupName, expenseDescription, userName, groupId, userId, strExpense) => {
   return new Promise(function (resolve, reject) {
     getUserIdArray(groupId, userId) 
@@ -633,3 +658,4 @@ exports.leaveGroup = leaveGroup;
 exports.settleUpExpenses = settleUpExpenses;
 exports.saveFile = saveFile;
 exports.getRecentActivityDetails = getRecentActivityDetails;
+exports.saveExpenseComment = saveExpenseComment;

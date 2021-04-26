@@ -4,6 +4,8 @@ import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import {url} from "../Constants"
+import Pagination from '@material-ui/lab/Pagination';
+
 
 class RecentActivity extends Component {
   constructor() {
@@ -16,11 +18,17 @@ class RecentActivity extends Component {
       allExpenseDetails:[],
       allUserDetails: [],
       months: [ "January", "February", "March", "April", "May", "June", 
-      "July", "August", "September", "October", "November", "December" ]
+      "July", "August", "September", "October", "November", "December" ],
+      reverse: true,
+      pageCount: 0,
+      displayActivityCount: 2,
+      activitiyDetailsArray: []
     };
-    
-  }   
- 
+    this.changeSortDropDown = this.changeSortDropDown.bind(this);
+    this.changePageCount = this.changePageCount.bind(this);
+    this.onPageClick = this.onPageClick.bind(this);
+  }  
+
   componentWillMount() {
     console.log("Inside RecentActivity componentDidMount : ");    
     this.state.user = JSON.parse(sessionStorage.getItem("user")); 
@@ -155,11 +163,42 @@ class RecentActivity extends Component {
     var text = this.state.recentActivities;
     text = text.replaceAll(this.state.user.UserName, 'You');          
     text = text.split(';');   
+    text.shift();
+    this.setState({
+      activitiyDetailsArray: text
+    });
     //text = text.replace(this.state.UserName, 'You');   
-    text = text.reverse();
+    if(this.state.reverse === true)
+    {
+      text = text.reverse();
+    }
+
+    var html = "";
+    var count = 1;
+
+    for(var obj of text)
+    {
+      html += obj + "<br/><br/>";
+      count++;
+      if(count > this.state.displayActivityCount)
+      {
+        break;
+      }
+    }
+
+    var PageCount = Math.floor(text.length / this.state.displayActivityCount);
+
+    if(text.length % this.state.displayActivityCount != 0)
+    {
+      PageCount++;
+    }
+
+    this.setState({
+      pageCount: PageCount
+    })
       //text[text.length - 1] = '';
     text = text.join('\n<br/><br/>');
-    document.getElementById("divRecentActivity").innerHTML = "<br/>" + text;   
+    document.getElementById("divRecentActivity").innerHTML = "<br/>" + html;   
   }
 
     getUserName = (UserId) => {
@@ -189,6 +228,45 @@ class RecentActivity extends Component {
             }     
         }
     }
+
+    changePageCount = (e) => {
+      
+      const count = document.getElementById("pageCountDropDown").value;
+      this.state.displayActivityCount = count;
+      this.renderRecentActivities();
+    }
+
+    changeSortDropDown = (e) => {
+      if(document.getElementById("sortDropDown").value === "MostRecentFirst")
+      {
+        this.state.reverse = true;
+      }
+      else
+      {
+        this.state.reverse = false;
+      }
+      
+      this.renderRecentActivities();
+    }
+
+    onPageClick = (e) => {
+      const arr = this.state.activitiyDetailsArray;
+      const noOfActivities = document.getElementById("pageCountDropDown").value;
+      const startValue = noOfActivities * (e.target.innerText - 1);
+      const endValue = noOfActivities * (e.target.innerText);
+      var html = "<br/>";
+      for(let i = startValue; i < endValue; i++)
+      {
+        if(arr[i] === undefined)
+        {
+          break;
+        }
+        html += arr[i] + "<br/><br/>";
+      }
+      
+      document.getElementById("divRecentActivity").innerHTML = html;
+    }
+
   render() {
     //if not logged in go to login page
     let redirectVar = null;
@@ -204,9 +282,20 @@ class RecentActivity extends Component {
             <div style = {{borderBottom: "1px solid #ddd", background: "#ddd"}}>
                 <label style = {{fontSize: "25px", marginTop: "2%", marginLeft: "1%"}}>Recent activity</label>
             </div>
-            <div id = "divRecentActivity">
-                
+            
+            <label style = {{fontWeight: "100", marginLeft: ".5%"}}>Activities per page : </label>
+            <select name="pageCountDropDown" onChange = {this.changePageCount} id="pageCountDropDown" style = {{background: "rgb(232 234 246)", height:"30px", width : "4%", borderRadius: "4px",marginLeft:"1%", marginTop:".5%"}}>
+              <option value="2">2</option>
+              <option value="5">5</option>
+              <option value="10">10</option>
+            </select>
+            <select name="sortDropDown" onChange = {this.changeSortDropDown} id="sortDropDown" style = {{background: "rgb(232 234 246)", height:"30px", width : "140px", borderRadius: "4px", marginTop:".5%",marginLeft:"2%"}}>
+              <option value="MostRecentFirst">Most Recent First</option>
+              <option value="MostRecentLast">Most Recent Last</option>
+            </select>
+            <div id = "divRecentActivity">                
             </div>
+            <Pagination id = "divPagination" count={this.state.pageCount} color="primary" variant="outlined" shape="rounded" onClick = {this.onPageClick}/>
         </div>
       </div>
     );

@@ -1,9 +1,18 @@
-import { USER_LOGIN, USER_LOGOUT, USER_SIGNUP } from "../constants/action-types";
+import { USER_LOGIN, USER_LOGOUT, USER_SIGNUP, USER_GROUPS } from "../constants/action-types";
+
 const initialState = {
-  user: {}
+  user:{}
 };
 
 function rootReducer(state = initialState, action) {
+    // if(action.type === REHYDRATE)
+    // {
+    //   return {
+    //     ...state,
+    //     user: action.payload 
+    //   };
+    // }
+    // else
     if (action.type === USER_LOGIN) {
       console.log("processing in reducer User_Login");
       return {
@@ -14,7 +23,7 @@ function rootReducer(state = initialState, action) {
     else if(action.type === USER_LOGOUT)
     {
       console.log("processing in reducer User_Logout");
-      return {};
+      return [];
     }
     else if(action.type === USER_SIGNUP)
     {
@@ -23,7 +32,7 @@ function rootReducer(state = initialState, action) {
         ...state, 
         user: action.payload
       };
-    }
+    }    
     else
       return state;
   }

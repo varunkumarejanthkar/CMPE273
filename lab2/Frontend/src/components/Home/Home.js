@@ -5,9 +5,12 @@ import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import '../../App.css'
-import {url} from "../Constants"
-class Home extends Component {
+import '../../App.css';
+import {url} from "../Constants";
+import { connect } from "react-redux";
+import { groupsAction } from "../../js/actions/index";
+import { loginAction } from "../../js/actions/index";
+class HomeClass extends Component {
     constructor(){
         console.log("Inside Home constructor");
         super();
@@ -55,6 +58,8 @@ class Home extends Component {
                         allGroupDetails: response.data
                     })
     
+                    //this.props.groupsAction(response.data[0]);
+
                     console.log(this.state.allGroupDetails);    
                     
                     axios.get(url + '/createNewGroup')
@@ -327,16 +332,15 @@ class Home extends Component {
                                 </div>
                             </div>
                             <div style = {{marginTop: "3%"}}>
-                                <div style = {{marginLeft: "1%", float: "left"}}>
+                                <div style = {{marginLeft: "5%", float: "left", marginTop: "2%"}}>
                                     <label style = {{color: "#756464"}}>PEOPLE YOU OWE</label>
                                 </div>
-                                <div style = {{marginRight: "9%", float: "right"}}>
+                                <div style = {{marginRight: "9%", float: "right", marginTop: "2%"}}>
                                     <label style = {{color: "#756464"}}>PEOPLE WHO OWE YOU</label>
                                 </div>
-                                <div id = "divYouOwe" style = {{float: "left", marginLeft: "-28%", marginTop: "8%", width: "55%"}}>
+                                <div id = "divYouOwe" style = {{float: "left", marginTop: "6%", width: "55%"}}>
                                 </div>                                
-                                <div id = "divOweYou" style = {{float: "left", marginTop: "3.5%", marginLeft: "6%"}}>
-
+                                <div id = "divOweYou" style = {{float: "left", marginLeft: "55%", marginTop:"-6%"}}>
                                 </div>
                             </div>
                         </div>
@@ -348,4 +352,12 @@ class Home extends Component {
     }
 }
 //export Home Component
+const mapStateToProps = (state) => {
+    console.log("mapStateToProps : " + state);
+    return {
+      groups: state.groups,
+    };
+  };
+  
+const Home = connect(mapStateToProps, { groupsAction })(HomeClass);
 export default Home;

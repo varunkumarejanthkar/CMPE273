@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var cors = require('cors');
 var service = require('./Services/Service');
 var userModel = require('./Model/UserModel');
+var kafka = require('./kafka/client');
 const multer = require('multer');
 const {check,validationResult} = require("express-validator");
 const upload = multer();
@@ -28,6 +29,7 @@ app.use(session({
 //     extended: true
 //   }));
 app.use(bodyParser.json());
+
 
 //Allow Access Control
 app.use(function(req, res, next) {
@@ -179,50 +181,112 @@ app.post('/createNewGroup',function(req,res){
     const groupName = req.body.Groupname;
     const userNameArray = req.body.UserNameArray;
     const emailArray = req.body.emailArray;    
-    const userIdArray = req.body.UserIdArray;
+    const userIdArray = req.body.UserIdArray;    
     
-    try{
-        service.createGroup(userId, groupName, userNameArray, emailArray, userIdArray);
+        service.createGroup(userId, groupName, userNameArray, emailArray, userIdArray)
+        .then(function(results){
         
             console.log("Inside index.js app.post createNewGroup if");
             res.writeHead(200,{
                      'Content-Type' : 'text/plain'
                  });       
             res.end();  
-    }
-    catch(err){
+        }).
+        catch(function(err){
             console.log("Inside index.js app.post createNewGroup catch block" + err);
             res.writeHead(500,{
                 'Content-Type' : 'text/plain'
             });  
             return res.end();
-    }                  
+        })                  
 });
 
-app.post('/saveExpense',function(req,res){    
-    const expense = req.body.Expense;
-    const groupName = req.body.GroupName;
-    const expenseDescription = req.body.ExpenseDescription; 
-    const userName = req.body.UserName;   
-    const groupId = req.body.GroupID;
-    const userId =req.body.UserId;
-    service.saveExpense(expense, groupName, expenseDescription, userName, groupId, userId)    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        console.log("Inside app.get saveExpense then block");
-        //console.log(JSON.stringify(results));
-        res.end();
-    })
-    .catch(function(err){
-        console.log("Inside app post saveExpense - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
-    });                  
+// app.post('/saveExpenseComment',function(req,res){    
+//     const expenseComment = req.body.ExpenseComment;
+//     const expenseName = req.body.ExpenseName;   
+    
+//         service.saveExpenseComment(expenseComment, expenseName)
+//         .then(function(results){        
+//             console.log("Inside index.js app.post saveExpenseComment if");
+//             res.writeHead(200,{
+//                      'Content-Type' : 'text/plain'
+//                  });       
+//             res.end();  
+//         }).
+//         catch(function(err){
+//             console.log("Inside index.js app.post saveExpenseComment catch block" + err);
+//             res.writeHead(500,{
+//                 'Content-Type' : 'text/plain'
+//             });  
+//             return res.end();
+//         })                  
+// });
+
+app.post('/saveExpenseComment',function(req,res){    
+    kafka.make_request('post_saveExpenseComment',req.body, function(err,results){
+        console.log('in result');
+        console.log(results);
+        if (err){
+            console.log("Inside err");
+            res.json({
+                status:"error",
+                msg:"System Error, Try Again."
+            })
+        }else{
+            console.log("Inside else");
+                res.json({
+                    updatedList:results
+                });
+
+                res.end();
+            }        
+    });                
 });
+
+app.post('/saveExpense',function(req,res){ 
+    kafka.make_request('post_saveExpense',req.body, function(err,results){
+        console.log('in result');
+        console.log(results);
+        if (err){
+            console.log("Inside err");
+            res.json({
+                status:"error",
+                msg:"System Error, Try Again."
+            })
+        }else{
+            console.log("Inside else");
+                res.json({
+                    updatedList:results
+                });
+
+                res.end();
+            }        
+    });
+});
+// app.post('/saveExpense',function(req,res){    
+//     const expense = req.body.Expense;
+//     const groupName = req.body.GroupName;
+//     const expenseDescription = req.body.ExpenseDescription; 
+//     const userName = req.body.UserName;   
+//     const groupId = req.body.GroupID;
+//     const userId =req.body.UserId;
+//     service.saveExpense(expense, groupName, expenseDescription, userName, groupId, userId)    
+//     .then(function(results){
+//         res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
+//         res.writeHead(200,{
+//             'Content-Type' : 'text/plain'
+//         })
+//         console.log("Inside app.get saveExpense then block");
+//         //console.log(JSON.stringify(results));
+//         res.end();
+//     })
+//     .catch(function(err){
+//         console.log("Inside app post saveExpense - Promise rejection error: "+err);
+//         return res.status(500).send({
+//             message: err
+//          });
+//     });                  
+// });
 
 app.post('/IsGroupCreated',function(req,res){    
     var groupName = req.body.GroupName; 

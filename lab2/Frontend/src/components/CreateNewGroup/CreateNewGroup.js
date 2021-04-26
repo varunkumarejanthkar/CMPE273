@@ -4,7 +4,7 @@ import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 //import reducer from "../../js/reducers/index";
-import store from "../../js/store/index";
+//import store from "../../js/store/index";
 // import Autocomplete from "react-autocomplete"
 //import ReactAutocomplete from "react-autocomplete"
 import {url} from "../Constants"
@@ -85,7 +85,7 @@ class CreateNewGroup extends Component {
         this.setState({
           authFlag: false,
         });
-        alert("Something went wrong");
+        alert("GroupName already exists!");
         //alert("Group name already exists");    
         // const groupData = {GroupName: data.Groupname};
         // axios
@@ -112,7 +112,7 @@ class CreateNewGroup extends Component {
   
   componentWillMount() {
     console.log("Inside Create NewGroup componentDidMount : ");
-    console.log(store.getState());
+    //console.log(store.getState());
     console.log(sessionStorage.getItem("user"));
     this.setState({
       user : JSON.parse(sessionStorage.getItem("user"))
@@ -120,6 +120,7 @@ class CreateNewGroup extends Component {
     //this.state.user = JSON.parse(sessionStorage.getItem("user")); 
     axios.get(url + '/createNewGroup')
                 .then((response) => {
+                  if (response.status === 200) {  
                 //update the state with the response data
                 console.log("Inside CreateNewGroup axios.get");
                 console.log(response.data);
@@ -159,7 +160,13 @@ class CreateNewGroup extends Component {
                   document.getElementById("txtMail" + i).add(option1, j + 1);
                 }
               }
-             
+            }
+            else {
+              this.setState({
+                authFlag: false,
+              });
+              alert("Something went wrong");
+            }
             })
             .catch((error) => {
                 this.setState({

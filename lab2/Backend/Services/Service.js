@@ -109,7 +109,7 @@ const createGroupRecentActivity = (userId, groupName, userNameArray, userIdArray
 const createGroup = (userId, groupName, userNameArray, emailArray, userIdArray) => {
     const recentActivity = createGroupRecentActivity(userId, groupName, userNameArray, userIdArray);
     //return dbConnect.createGroup(userId, groupName, userIdArray, emailArray);
-   // return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       dbConnect.createGroup(userId, groupName, userNameArray, emailArray)
         .then(function (results) {    
           dbConnect.getGroupDetails(groupName)
@@ -133,7 +133,22 @@ const createGroup = (userId, groupName, userNameArray, emailArray, userIdArray) 
         .catch(function (err) {
           console.log("Promise rejection error: " + err);
           reject();
-        });          
+        });     
+      });     
+}
+
+const saveExpenseComment = (expenseComment, expenseName) => {
+  return new Promise(function (resolve, reject) {
+    dbConnect
+      .saveExpenseComment(expenseComment, expenseName)
+      .then(function (results) {        
+        resolve();
+      })
+      .catch(function (err) {
+        console.log("Promise rejection error: " + err);
+        reject("Internal Server Error");
+      });
+  });
 }
 
 const getAllUserDetails = () => {
@@ -197,3 +212,4 @@ exports.leaveGroup = leaveGroup;
 exports.settleUpExpenses = settleUpExpenses;
 exports.saveFile = saveFile;
 exports.getRecentActivityDetails = getRecentActivityDetails;
+exports.saveExpenseComment = saveExpenseComment;

@@ -3,8 +3,8 @@ import "../../App.css";
 import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
-//import reducer from "../../js/reducers/index";
-import store from "../../js/store/index";
+import reducer from "../../js/reducers/index";
+//import store from "../../js/store/index";
 import { connect } from "react-redux";
 import { loginAction } from "../../js/actions/index";
 import FormData from 'form-data'
@@ -58,6 +58,14 @@ class AccountClass extends Component {
       return;
     }
 
+    const regex = /^\d*$/;
+
+    if(!regex.test(data.Phone_Number))
+    {
+      alert("Please enter valid phone number");
+      return;
+    }
+
     axios.defaults.withCredentials = true;
     axios
       .post(url + "/account", data)
@@ -83,13 +91,16 @@ class AccountClass extends Component {
           this.setState({
             authFlag: false,
           });
-          alert("500 : Internal Server Error");
+          alert("Please enter valid details");
         }
       })
       .catch((error) => {
         this.setState({
           authFlag: false,
         });
+
+        console.log(error.response.data);
+        alert(error.response.data.message.sqlMessage);
 
         //alert("Inavalid Credentials");
         //console.log("Error");
@@ -142,7 +153,7 @@ class AccountClass extends Component {
   //get the books data from backend
   componentWillMount() {    
     console.log("Inside Account componentDidMount : ");
-    console.log(store.getState());
+    //console.log(store.getState());
     console.log(sessionStorage.getItem("user"));
     //this.state.user = JSON.parse(sessionStorage.getItem("user"));
     this.setState({
