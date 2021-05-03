@@ -3,6 +3,7 @@ var UserModel = require("../Model/UserModel");
 var dbConnect = require("../Database/DBConnect");
 var crypto = require("crypto");
 const { resolve } = require("path");
+const mongoDB = require("../Database/MongoDBConnect");
 
 const encrypt = (password) => {
   const algorithm = "aes256"; // or any other algorithm supported by OpenSSL
@@ -27,6 +28,7 @@ const decrypt = (encryptedCode) => {
 const signupService = (userModel) => {
   const password = userModel.password;
   userModel.password = encrypt(userModel.password);
+  mongoDB.handle_request(userModel);
   return new Promise(function (resolve, reject) {
   dbConnect.saveSignUpDetails(userModel)
   .then(function(results){
@@ -46,6 +48,7 @@ const signupService = (userModel) => {
 };
 
 const loginService = (userModel) => {
+
   return new Promise(function (resolve, reject) {
     dbConnect
       .GetUserDetails(userModel)

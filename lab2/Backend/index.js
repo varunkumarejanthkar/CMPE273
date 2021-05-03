@@ -11,6 +11,8 @@ var kafka = require('./kafka/client');
 const multer = require('multer');
 const {check,validationResult} = require("express-validator");
 const upload = multer();
+const connectDB = require("./connectMongoDB");
+const connectMongoDB = require('./connectMongoDB');
 app.set('view engine', 'ejs');
 
 //use cors to allow cross origin resource sharing
@@ -54,173 +56,181 @@ app.use(function(req, res, next) {
 var demo;
 var bookIDArray = [1, 2, 3];
 var sessionUser = "";
-//Route to handle Post Request Call
+connectMongoDB();
+
 app.post('/login',function(req,res){   
     
-    var password = req.body.password;
-    var email = req.body.mail;
-    //console.log("Inside Signup Post Request : " + username);
-    //console.log("Req Body : ", username + "password : ",password);
-    var model = new userModel.UserModel(null, password, email);
-    //var returnValue = service.signupService(modal);
-    //console.log("Inside Signup : " + returnValue);
-    service.loginService(model)    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-        //req.session.user = user;
-        console.log("Inside app post login : " + results);
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        console.log(results[0]);
-        res.end(JSON.stringify(results[0]));
-    })
-    .catch(function(err){
-        console.log("Inside app post login - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
+    kafka.make_request('Login_User',req.body, function(err,results){
+        console.log('in result');
+        console.log(results);
+        if (err){
+            console.log("Inside err");
+            res.json({
+                status:"error",
+                msg:"System Error, Try Again."
+            })
+        }else{
+            console.log("Inside else");
+                res.json({
+                    updatedList:results
+                });
+
+                res.end(JSON.stringify(results));
+            }        
     });
 });
-
 
 app.post('/Signup',function(req,res){    
-    var username = req.body.username;
-    var password = req.body.password;
-    var email = req.body.emailAddress;
-    console.log("Inside Signup Post Request : " + username);
-    //console.log("Req Body : ", username + "password : ",password);
-    var modal = new userModel.UserModel(username, password, email);
-    //var returnValue = service.signupService(modal);
-    //console.log("Inside Signup : " + returnValue);
-    service.signupService(modal)
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-        //req.session.user = user;
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        res.end(results);
-    })
-    .catch(function(err){
-        console.log("Promise rejection error: "+err);
-        return res.status(500).send({
-            message: 'Signup Error'
-         });
-    })    
+    try{
+    kafka.make_request('Signup_User',req.body, function(err,results){
+        console.log('in result');
+        console.log(results);
+        if (err){
+            console.log("Inside err");
+            res.json({
+                status:"error",
+                msg:"System Error, Try Again."
+            })
+        }else{
+            console.log("Inside else");
+                // res.json({
+                //     updatedList:results
+                // });
+
+                res.end(results);
+            }        
+    });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
 });
 
-app.post('/account',function(req,res){    
-    var password = req.body.Password;
-    var mail = req.body.Mail;    
-    var model = new userModel.UserModel(req.body.UserName, password, mail, req.body.UserId, req.body.Phone_Number, "", req.body.DefaultCurrency, req.body.Language);
-    //var returnValue = service.signupService(modal);
-    //console.log("Inside Signup : " + returnValue);
-    service.updateUserDetails(model)    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-        //req.session.user = user;
-        console.log("Inside app post account : " + results);
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        res.end();
-    })
-    .catch(function(err){
-        console.log("Inside app post account - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
-    });
+
+app.post('/account',function(req,res){ 
+
+    try{
+        kafka.make_request('Signup_User',req.body, function(err,results){
+            console.log('in result');
+            console.log(results);
+            if (err){
+                console.log("Inside err");
+                res.json({
+                    status:"error",
+                    msg:"System Error, Try Again."
+                })
+            }else{
+                console.log("Inside else");
+                    // res.json({
+                    //     updatedList:results
+                    // });
+    
+                    res.end();
+                }        
+        });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
+
+  
 });
 
-app.get('/createNewGroup', function(req,res){
-    console.log("Inside app.get createNewGroup");    
-    service.getAllUserDetails()    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        console.log("Inside app.get createNewGroup then block");
-        console.log(JSON.stringify(results));
-        res.end(JSON.stringify(results));
-    })
-    .catch(function(err){
-        console.log("Inside app post account - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
-    });     
+app.get('/createNewGroup', function(req,res){    
+    try{
+        kafka.make_request('Get_All_User_Details',req.body, function(err,results){
+            console.log('in result');
+            console.log(results);
+            if (err){
+                console.log("Inside err");
+                res.json({
+                    status:"error",
+                    msg:"System Error, Try Again."
+                })
+            }else{
+                console.log("Inside else");
+                    // res.json({
+                    //     updatedList:results
+                    // });
+    
+                    res.end(results);
+                }        
+        });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
+   
 })
 
 app.get('/getRecentActivityDetails', function(req,res){
-    console.log("Inside app.get getRecentActivityDetails");    
-    const userId = req.query.UserId;
-    service.getRecentActivityDetails(userId)    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        console.log("Inside app.get getRecentActivityDetails then block");
-        console.log(JSON.stringify(results));
-        res.end(JSON.stringify(results));
-    })
-    .catch(function(err){
-        console.log("Inside app get getRecentActivityDetails - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
-    });     
+    try{
+        kafka.make_request('Get_All_User_Details',req.body, function(err,results){
+            console.log('in result');
+            console.log(results);
+            if (err){
+                console.log("Inside err");
+                res.json({
+                    status:"error",
+                    msg:"System Error, Try Again."
+                })
+            }else{
+                console.log("Inside else");
+                    // res.json({
+                    //     updatedList:results
+                    // });
+    
+                    res.end(JSON.stringify.apply(results));
+                }        
+        });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
+    
+   
 })
 
 
-app.post('/createNewGroup',function(req,res){    
-    const userId = req.body.UserId;
-    const groupName = req.body.Groupname;
-    const userNameArray = req.body.UserNameArray;
-    const emailArray = req.body.emailArray;    
-    const userIdArray = req.body.UserIdArray;    
+app.post('/createNewGroup',function(req,res){  
     
-        service.createGroup(userId, groupName, userNameArray, emailArray, userIdArray)
-        .then(function(results){
-        
-            console.log("Inside index.js app.post createNewGroup if");
-            res.writeHead(200,{
-                     'Content-Type' : 'text/plain'
-                 });       
-            res.end();  
-        }).
-        catch(function(err){
-            console.log("Inside index.js app.post createNewGroup catch block" + err);
-            res.writeHead(500,{
-                'Content-Type' : 'text/plain'
-            });  
-            return res.end();
-        })                  
+    try{
+        kafka.make_request('Create_Group',req.body, function(err,results){
+            console.log('in result');
+            console.log(results);
+            if (err){
+                console.log("Inside err");
+                res.json({
+                    status:"error",
+                    msg:"System Error, Try Again."
+                })
+            }else{
+                console.log("Inside else");
+                    // res.json({
+                    //     updatedList:results
+                    // });
+    
+                    res.end();
+                }        
+        });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
+           
 });
 
-// app.post('/saveExpenseComment',function(req,res){    
-//     const expenseComment = req.body.ExpenseComment;
-//     const expenseName = req.body.ExpenseName;   
-    
-//         service.saveExpenseComment(expenseComment, expenseName)
-//         .then(function(results){        
-//             console.log("Inside index.js app.post saveExpenseComment if");
-//             res.writeHead(200,{
-//                      'Content-Type' : 'text/plain'
-//                  });       
-//             res.end();  
-//         }).
-//         catch(function(err){
-//             console.log("Inside index.js app.post saveExpenseComment catch block" + err);
-//             res.writeHead(500,{
-//                 'Content-Type' : 'text/plain'
-//             });  
-//             return res.end();
-//         })                  
-// });
+
 
 app.post('/saveExpenseComment',function(req,res){    
     kafka.make_request('post_saveExpenseComment',req.body, function(err,results){
@@ -263,95 +273,151 @@ app.post('/saveExpense',function(req,res){
             }        
     });
 });
-// app.post('/saveExpense',function(req,res){    
-//     const expense = req.body.Expense;
-//     const groupName = req.body.GroupName;
-//     const expenseDescription = req.body.ExpenseDescription; 
-//     const userName = req.body.UserName;   
-//     const groupId = req.body.GroupID;
-//     const userId =req.body.UserId;
-//     service.saveExpense(expense, groupName, expenseDescription, userName, groupId, userId)    
-//     .then(function(results){
-//         res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});        
-//         res.writeHead(200,{
-//             'Content-Type' : 'text/plain'
-//         })
-//         console.log("Inside app.get saveExpense then block");
-//         //console.log(JSON.stringify(results));
-//         res.end();
-//     })
-//     .catch(function(err){
-//         console.log("Inside app post saveExpense - Promise rejection error: "+err);
-//         return res.status(500).send({
-//             message: err
-//          });
-//     });                  
-// });
 
 app.post('/IsGroupCreated',function(req,res){    
-    var groupName = req.body.GroupName; 
+    try{
+        kafka.make_request('Is_Group_Created',req.body, function(err,results){
+            console.log('in result');
+            console.log(results);
+            if (err){
+                console.log("Inside err");
+                res.json({
+                    status:"error",
+                    msg:"System Error, Try Again."
+                })
+            }else{
+                console.log("Inside else");
+                    // res.json({
+                    //     updatedList:results
+                    // });
+    
+                    res.end();
+                }        
+        });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
 
-    service.IsGroupCreated(groupName)    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
-        //req.session.user = user;
-        console.log("Inside app post IsGroupCreated : " + results);
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        console.log("Inside app post IsGroupCreated - Success");
-        res.end();
-    })
-    .catch(function(err){
-        console.log("Inside app post IsGroupCreated - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
-    });
+
+    // var groupName = req.body.GroupName; 
+
+    // service.IsGroupCreated(groupName)    
+    // .then(function(results){
+    //     res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+    //     //req.session.user = user;
+    //     console.log("Inside app post IsGroupCreated : " + results);
+    //     res.writeHead(200,{
+    //         'Content-Type' : 'text/plain'
+    //     })
+    //     console.log("Inside app post IsGroupCreated - Success");
+    //     res.end();
+    // })
+    // .catch(function(err){
+    //     console.log("Inside app post IsGroupCreated - Promise rejection error: "+err);
+    //     return res.status(500).send({
+    //         message: err
+    //      });
+    // });
 });
 
-app.post('/saveInvitation',function(req,res){    
-    const userId = req.body.userId;
-    const groupId = req.body.groupId;
+app.post('/saveInvitation',function(req,res){   
+    
+    try{
+        kafka.make_request('Save_Invitation',req.body, function(err,results){
+            console.log('in result');
+            console.log(results);
+            if (err){
+                console.log("Inside err");
+                res.json({
+                    status:"error",
+                    msg:"System Error, Try Again."
+                })
+            }else{
+                console.log("Inside else");
+                    // res.json({
+                    //     updatedList:results
+                    // });
+    
+                    res.end();
+                }        
+        });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
 
-    service.saveInvitation(userId, groupId)    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});       
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        console.log("Inside app post saveInvitation - Success");
-        res.end();
-    })
-    .catch(function(err){
-        console.log("Inside app post saveInvitation - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
-    });
+    // const userId = req.body.userId;
+    // const groupId = req.body.groupId;
+
+    // service.saveInvitation(userId, groupId)    
+    // .then(function(results){
+    //     res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});       
+    //     res.writeHead(200,{
+    //         'Content-Type' : 'text/plain'
+    //     })
+    //     console.log("Inside app post saveInvitation - Success");
+    //     res.end();
+    // })
+    // .catch(function(err){
+    //     console.log("Inside app post saveInvitation - Promise rejection error: "+err);
+    //     return res.status(500).send({
+    //         message: err
+    //      });
+    // });
 });
 
-app.post('/settleUpExpenses',function(req,res){    
-    const userId = req.body.UserId;
-    const userName1 = req.body.UserName1;
-    const userName2 = req.body.UserName2;
-    const userId2 = req.body.UserId2;
+app.post('/settleUpExpenses',function(req,res){ 
+    try{
+        kafka.make_request('SettleUpExpenses',req.body, function(err,results){
+            console.log('in result');
+            console.log(results);
+            if (err){
+                console.log("Inside err");
+                res.json({
+                    status:"error",
+                    msg:"System Error, Try Again."
+                })
+            }else{
+                console.log("Inside else");
+                    // res.json({
+                    //     updatedList:results
+                    // });
+    
+                    res.end();
+                }        
+        });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
 
-    service.settleUpExpenses(userId, userName1, userName2, userId2)    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});       
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        console.log("Inside app post settleUpExpenses - Success");
-        res.end();
-    })
-    .catch(function(err){
-        console.log("Inside app post settleUpExpenses - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
-    });
+    // const userId = req.body.UserId;
+    // const userName1 = req.body.UserName1;
+    // const userName2 = req.body.UserName2;
+    // const userId2 = req.body.UserId2;
+
+    // service.settleUpExpenses(userId, userName1, userName2, userId2)    
+    // .then(function(results){
+    //     res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});       
+    //     res.writeHead(200,{
+    //         'Content-Type' : 'text/plain'
+    //     })
+    //     console.log("Inside app post settleUpExpenses - Success");
+    //     res.end();
+    // })
+    // .catch(function(err){
+    //     console.log("Inside app post settleUpExpenses - Promise rejection error: "+err);
+    //     return res.status(500).send({
+    //         message: err
+    //      });
+    // });
 });
 
 app.post('/leaveGroup',function(req,res){    
@@ -378,26 +444,52 @@ app.post('/leaveGroup',function(req,res){
 });
 
 app.post('/saveFile', upload.single('file_uplaoded'), function(req, res, next) {
+    try{
+        kafka.make_request('SaveFile',req.body, function(err,results){
+            console.log('in result');
+            console.log(results);
+            if (err){
+                console.log("Inside err");
+                res.json({
+                    status:"error",
+                    msg:"System Error, Try Again."
+                })
+            }else{
+                console.log("Inside else");
+                    // res.json({
+                    //     updatedList:results
+                    // });
+    
+                    res.end();
+                }        
+        });    
+    }
+    catch(e)
+    {
+        console.log(e);
+        res.end("Internal Server Error");
+    }
+
     // req.file is the `file_uplaoded` file 
     // req.body will hold the text fields, if there were any 
-    const fileBytes = req.file;    
-    const userId = req.body.UserId;
+    // const fileBytes = req.file;    
+    // const userId = req.body.UserId;
 
-    service.saveFile(fileBytes, userId)    
-    .then(function(results){
-        res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});      
-        res.writeHead(200,{
-            'Content-Type' : 'text/plain'
-        })
-        console.log("Inside app post saveFile - Success");
-        res.end();
-    })
-    .catch(function(err){
-        console.log("Inside app post saveFile - Promise rejection error: "+err);
-        return res.status(500).send({
-            message: err
-         });
-    });
+    // service.saveFile(fileBytes, userId)    
+    // .then(function(results){
+    //     res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});      
+    //     res.writeHead(200,{
+    //         'Content-Type' : 'text/plain'
+    //     })
+    //     console.log("Inside app post saveFile - Success");
+    //     res.end();
+    // })
+    // .catch(function(err){
+    //     console.log("Inside app post saveFile - Promise rejection error: "+err);
+    //     return res.status(500).send({
+    //         message: err
+    //      });
+    // });
   })
 
 app.get('/GetAllGroupsDetails', function(req,res){

@@ -107,13 +107,9 @@ class Groups extends Component {
       console.log("Inside GetAllGroupsDetails axios.get");
       if(response.data.length !== 0)
       {
-      this.setState({
-        activeGroup: response.data[0].GroupName,
-        activeGroupId: response.data[0].GroupID
-      });
-      this.setState({
-        allGroupDetails: response.data
-      })
+      this.state.activeGroup = response.data[0].GroupName;
+      this.state.activeGroupId = response.data[0].GroupID;
+      this.state.allGroupDetails = response.data;      
     }
       document.getElementById("divSideNav").innerHTML = this.createMarkup();  
       for(const group of this.state.allGroupDetails)
@@ -148,21 +144,15 @@ class Groups extends Component {
             }
           }
           this.renderGroupExpenses(response.data);
-          this.setState({
-            allExpenseDetails: response.data
-          });    
+          this.state.allExpenseDetails = response.data;        
           
           axios.get(url + '/createNewGroup')
                 .then((response) => {
                 //update the state with the response data
                 console.log("Inside CreateNewGroup axios.get");
                 console.log(response.data);
-                this.setState({
-                    allUserDetails : response.data
-                });
-                this.setState({
-                  activeGroup : sessionStorage.getItem('ActiveGroup')
-                });
+                this.state.allUserDetails = response.data;
+                this.state.activeGroup = sessionStorage.getItem('ActiveGroup');               
                 this.setActiveGroupId();
                 this.onRefreshPage();
             })
